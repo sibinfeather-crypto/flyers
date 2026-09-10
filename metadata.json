@@ -1,0 +1,6 @@
+{
+  "name": "The Flyer's - Accessories & Spares",
+  "description": "Premium motorcycle and car accessories, track-used tyres, riding gear, and performance spares with pan-India shipping.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
