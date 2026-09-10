@@ -105,31 +105,10 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenInquiry }) => {
               <span className="hidden xl:inline">Custom Spare</span>
               <span className="xl:hidden">Inquiry</span>
             </button>
-
-            <a
-              href={getWhatsAppGeneralInquiryUrl()}
-              target="_blank"
-              rel="noopener noreferrer"
-              id="nav-whatsapp-cta"
-              className="px-4 py-2.5 bg-[#E8302B] hover:bg-[#cf2520] text-white font-racing text-base xl:text-lg tracking-wider font-bold clip-slant-button transition-transform hover:scale-105 active:scale-95 flex items-center space-x-2 red-glow-sm"
-            >
-              <MessageCircle className="w-4 h-4 fill-white" />
-              <span>SHOP ON WA</span>
-            </a>
           </div>
 
           {/* Mobile Menu Button */}
           <div className="flex lg:hidden items-center space-x-2">
-            <a
-              href={getWhatsAppGeneralInquiryUrl()}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="px-3 py-1.5 bg-[#E8302B] text-white font-racing text-sm font-bold clip-badge-slant flex items-center space-x-1"
-            >
-              <MessageCircle className="w-3.5 h-3.5" />
-              <span>WhatsApp</span>
-            </a>
-
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
               className="p-2 text-neutral-300 hover:text-white bg-[#18181b] border border-[#27272a] rounded-md focus:outline-none"

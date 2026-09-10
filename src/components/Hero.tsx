@@ -65,8 +65,6 @@ export const Hero: React.FC<HeroProps> = ({ onSearchChange, searchQuery: initial
         {/* Established Badge */}
         <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-neutral-900/90 border border-neutral-800 text-neutral-300 text-xs sm:text-sm font-tech tracking-wider uppercase mb-6 shadow-xl backdrop-blur-md">
           <span className="w-2 h-2 rounded-full bg-[#E8302B] animate-pulse" />
-          <span className="text-[#E8302B] font-bold">71.5K+ RIDERS ON INSTAGRAM</span>
-          <span className="text-neutral-600">•</span>
           <span>ESTABLISHED MOTORCYCLE & CAR SPECIALIST</span>
         </div>
 
