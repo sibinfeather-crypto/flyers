@@ -75,7 +75,7 @@ export const Hero: React.FC<HeroProps> = ({ onSearchChange, searchQuery: initial
 
         {/* Main Pitch Headline */}
         <h1 className="text-3xl sm:text-5xl md:text-6xl font-racing font-black uppercase text-white tracking-wide max-w-4xl leading-[1.05] mt-3">
-          PERFORMANCE SPARES, <span className="text-[#E8302B] underline decoration-[#E8302B]/40 decoration-4 underline-offset-8">TRACK TYRES</span> & RIDING GEAR
+          PERFORMANCE SPARES, <span className="text-[#E8302B] underline decoration-[#E8302B]/40 decoration-4 underline-offset-8">TRACK TYRES</span> & RIDING
         </h1>
 
         {/* Subtitle with Value Propositions */}
