@@ -145,12 +145,14 @@ export const TrackTyresPage: React.FC<TrackTyresPageProps> = ({
                   className="relative h-64 w-full bg-neutral-950 overflow-hidden cursor-pointer"
                   onClick={() => onSelectProduct(prod)}
                 >
-                  <img
-                    src={prod.image}
-                    alt={prod.name}
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 opacity-90 group-hover:opacity-100"
-                    loading="lazy"
-                  />
+                  {prod.image ? (
+                    <img
+                      src={prod.image}
+                      alt={prod.name}
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 opacity-90 group-hover:opacity-100"
+                      loading="lazy"
+                    />
+                  ) : null}
                   <div className="absolute inset-0 bg-gradient-to-t from-[#111114] via-transparent to-transparent" />
 
                   <div className="absolute top-3 left-3 flex flex-col gap-1">

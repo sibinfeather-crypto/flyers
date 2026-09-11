@@ -50,12 +50,14 @@ export const FeaturedOffers: React.FC<FeaturedOffersProps> = ({ onSelectProduct 
               >
                 {/* Product Image & Badges */}
                 <div className="relative h-56 w-full overflow-hidden bg-neutral-950">
-                  <img
-                    src={offer.image}
-                    alt={offer.name}
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 opacity-80 group-hover:opacity-100"
-                    loading="lazy"
-                  />
+                  {offer.image ? (
+                    <img
+                      src={offer.image}
+                      alt={offer.name}
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 opacity-80 group-hover:opacity-100"
+                      loading="lazy"
+                    />
+                  ) : null}
                   <div className="absolute inset-0 bg-gradient-to-t from-[#111114] via-transparent to-black/40" />
 
                   {/* Top Badge: Hot Offer / Discount */}

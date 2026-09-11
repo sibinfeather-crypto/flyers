@@ -88,10 +88,13 @@ export default function App() {
         <FloatingWhatsApp />
 
         {/* Global Product Specification & Order Modal */}
-        <ProductDetailModal
-          product={activeProductModal}
-          onClose={() => setActiveProductModal(null)}
-        />
+        {activeProductModal && (
+          <ProductDetailModal
+            key={activeProductModal.id}
+            product={activeProductModal}
+            onClose={() => setActiveProductModal(null)}
+          />
+        )}
 
         {/* Global Custom Spare / Fitment WhatsApp Concierge Modal */}
         <CustomInquiryModal

@@ -9,24 +9,23 @@ interface ProductDetailModalProps {
 }
 
 export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({ product, onClose }) => {
-  const [selectedImage, setSelectedImage] = React.useState<string>(product?.image || '');
+  const [selectedImage, setSelectedImage] = React.useState<string | null>(null);
 
   React.useEffect(() => {
-    if (product) {
-      setSelectedImage(product.image);
-    }
-  }, [product]);
+    setSelectedImage(null);
+  }, [product?.id]);
 
   if (!product) return null;
 
+  const currentImage = selectedImage || product.image || null;
   const whatsappUrl = getWhatsAppOrderUrl(product.name, product.price, product.categoryLabel);
   const savings = product.originalPrice 
     ? Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100) 
     : 0;
 
-  const allImages = product.galleryImages && product.galleryImages.length > 0 
+  const allImages = (product.galleryImages && product.galleryImages.length > 0 
     ? product.galleryImages 
-    : [product.image];
+    : [product.image]).filter(Boolean);
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-fadeIn">
@@ -57,11 +56,17 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({ product,
             {/* Left: Product Image & Gallery */}
             <div className="flex flex-col gap-3">
               <div className="relative rounded bg-neutral-950 overflow-hidden border border-neutral-800 h-64 md:h-72 flex items-center justify-center">
-                <img
-                  src={selectedImage}
-                  alt={product.name}
-                  className="w-full h-full object-cover transition-opacity duration-200"
-                />
+                {currentImage ? (
+                  <img
+                    src={currentImage}
+                    alt={product.name}
+                    className="w-full h-full object-cover transition-opacity duration-200"
+                  />
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center bg-neutral-900 text-neutral-500 font-tech text-xs">
+                    No Image Available
+                  </div>
+                )}
                 {product.badge && (
                   <div className="absolute top-3 left-3 px-3 py-1 bg-[#E8302B] text-white text-xs font-racing font-bold tracking-wider clip-badge-slant shadow-lg">
                     {product.badge}
@@ -70,19 +75,21 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({ product,
               </div>
 
               {allImages.length > 1 && (
-                <div className="flex items-center gap-2">
+                <div className="flex flex-wrap items-center gap-2">
                   {allImages.map((imgUrl, idx) => (
                     <button
                       key={idx}
                       type="button"
                       onClick={() => setSelectedImage(imgUrl)}
                       className={`relative w-16 h-16 rounded overflow-hidden border-2 transition-all cursor-pointer ${
-                        selectedImage === imgUrl 
+                        currentImage === imgUrl 
                           ? 'border-[#E8302B] ring-2 ring-[#E8302B]/30 scale-105' 
                           : 'border-neutral-800 opacity-70 hover:opacity-100'
                       }`}
                     >
-                      <img src={imgUrl} alt={`View angle ${idx + 1}`} className="w-full h-full object-cover" />
+                      {imgUrl ? (
+                        <img src={imgUrl} alt={`View angle ${idx + 1}`} className="w-full h-full object-cover" />
+                      ) : null}
                     </button>
                   ))}
                   <span className="text-[11px] font-tech text-neutral-400 ml-1">

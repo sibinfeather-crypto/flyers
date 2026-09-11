@@ -76,7 +76,7 @@ export const CatalogPage: React.FC<CatalogPageProps> = ({
     { id: 'tyres', label: 'TRACK TYRES' },
     { id: 'bike-accessories', label: 'BIKE ACCESSORIES' },
     { id: 'car-accessories', label: 'CAR ACCESSORIES' },
-    { id: 'spares', label: 'SPARES & Levers' },
+    { id: 'spares', label: 'SPARES & LEVERS' },
   ];
 
   const filteredProducts = useMemo(() => {
@@ -269,12 +269,14 @@ export const CatalogPage: React.FC<CatalogPageProps> = ({
                     className="relative h-60 w-full overflow-hidden bg-neutral-950 cursor-pointer"
                     onClick={() => onSelectProduct(product)}
                   >
-                    <img
-                      src={product.image}
-                      alt={product.name}
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 opacity-90 group-hover:opacity-100"
-                      loading="lazy"
-                    />
+                    {product.image ? (
+                      <img
+                        src={product.image}
+                        alt={product.name}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 opacity-90 group-hover:opacity-100"
+                        loading="lazy"
+                      />
+                    ) : null}
                     
                     <div className="absolute inset-0 bg-gradient-to-t from-[#111114] via-transparent to-transparent" />
 

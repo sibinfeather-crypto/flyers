@@ -70,12 +70,14 @@ export const Categories: React.FC<CategoriesProps> = ({ onSelectCategory, select
               >
                 {/* Image Top Half with Dark Gradient Overlay */}
                 <div className="relative h-44 w-full overflow-hidden bg-neutral-900">
-                  <img
-                    src={cat.image}
-                    alt={cat.name}
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 opacity-70 group-hover:opacity-90"
-                    loading="lazy"
-                  />
+                  {cat.image ? (
+                    <img
+                      src={cat.image}
+                      alt={cat.name}
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 opacity-70 group-hover:opacity-90"
+                      loading="lazy"
+                    />
+                  ) : null}
                   <div className="absolute inset-0 bg-gradient-to-t from-[#101013] via-[#101013]/50 to-transparent" />
 
                   {/* Starting Price Tag */}

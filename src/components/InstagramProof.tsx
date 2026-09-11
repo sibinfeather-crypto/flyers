@@ -113,12 +113,14 @@ export const InstagramProof: React.FC = () => {
               className="bg-[#121216] border border-[#222227] clip-corner-cut overflow-hidden group hover:border-[#E8302B]/60 transition-all shadow-xl"
             >
               <div className="relative h-52 w-full overflow-hidden bg-neutral-950">
-                <img
-                  src={card.image}
-                  alt={card.title}
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 opacity-80 group-hover:opacity-100"
-                  loading="lazy"
-                />
+                {card.image ? (
+                  <img
+                    src={card.image}
+                    alt={card.title}
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 opacity-80 group-hover:opacity-100"
+                    loading="lazy"
+                  />
+                ) : null}
                 <div className="absolute inset-0 bg-gradient-to-t from-[#121216] via-transparent to-transparent" />
                 
                 <span className="absolute top-3 left-3 text-[10px] font-tech text-white bg-black/80 px-2 py-0.5 rounded border border-neutral-800">

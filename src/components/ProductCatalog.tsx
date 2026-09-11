@@ -31,7 +31,7 @@ export const ProductCatalog: React.FC<ProductCatalogProps> = ({
     { id: 'tyres', label: 'TRACK TYRES' },
     { id: 'bike-accessories', label: 'BIKE ACCESSORIES' },
     { id: 'car-accessories', label: 'CAR ACCESSORIES' },
-    { id: 'spares', label: 'SPARES' },
+    { id: 'spares', label: 'SPARES & LEVERS' },
   ];
 
   const filteredProducts = useMemo(() => {
@@ -136,12 +136,14 @@ export const ProductCatalog: React.FC<ProductCatalogProps> = ({
                 >
                   {/* Image & Badges */}
                   <div className="relative h-48 w-full overflow-hidden bg-neutral-950">
-                    <img
-                      src={item.image}
-                      alt={item.name}
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 opacity-80 group-hover:opacity-100"
-                      loading="lazy"
-                    />
+                    {item.image ? (
+                      <img
+                        src={item.image}
+                        alt={item.name}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 opacity-80 group-hover:opacity-100"
+                        loading="lazy"
+                      />
+                    ) : null}
                     <div className="absolute inset-0 bg-gradient-to-t from-[#111114] via-transparent to-transparent" />
 
                     {item.badge && (
