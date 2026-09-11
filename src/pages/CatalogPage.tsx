@@ -76,7 +76,7 @@ export const CatalogPage: React.FC<CatalogPageProps> = ({
     { id: 'tyres', label: 'TRACK TYRES' },
     { id: 'bike-accessories', label: 'BIKE ACCESSORIES' },
     { id: 'car-accessories', label: 'CAR ACCESSORIES' },
-    { id: 'spares', label: 'SPARES' },
+    { id: 'spares', label: 'SPARES & Levers' },
   ];
 
   const filteredProducts = useMemo(() => {
