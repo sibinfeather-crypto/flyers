@@ -9,12 +9,24 @@ interface ProductDetailModalProps {
 }
 
 export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({ product, onClose }) => {
+  const [selectedImage, setSelectedImage] = React.useState<string>(product?.image || '');
+
+  React.useEffect(() => {
+    if (product) {
+      setSelectedImage(product.image);
+    }
+  }, [product]);
+
   if (!product) return null;
 
   const whatsappUrl = getWhatsAppOrderUrl(product.name, product.price, product.categoryLabel);
   const savings = product.originalPrice 
     ? Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100) 
     : 0;
+
+  const allImages = product.galleryImages && product.galleryImages.length > 0 
+    ? product.galleryImages 
+    : [product.image];
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-fadeIn">
@@ -42,16 +54,40 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({ product,
         <div className="p-6 overflow-y-auto space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             
-            {/* Left: Product Image & Badges */}
-            <div className="relative rounded bg-neutral-950 overflow-hidden border border-neutral-800 h-64 md:h-auto flex items-center justify-center">
-              <img
-                src={product.image}
-                alt={product.name}
-                className="w-full h-full object-cover"
-              />
-              {product.badge && (
-                <div className="absolute top-3 left-3 px-3 py-1 bg-[#E8302B] text-white text-xs font-racing font-bold tracking-wider clip-badge-slant shadow-lg">
-                  {product.badge}
+            {/* Left: Product Image & Gallery */}
+            <div className="flex flex-col gap-3">
+              <div className="relative rounded bg-neutral-950 overflow-hidden border border-neutral-800 h-64 md:h-72 flex items-center justify-center">
+                <img
+                  src={selectedImage}
+                  alt={product.name}
+                  className="w-full h-full object-cover transition-opacity duration-200"
+                />
+                {product.badge && (
+                  <div className="absolute top-3 left-3 px-3 py-1 bg-[#E8302B] text-white text-xs font-racing font-bold tracking-wider clip-badge-slant shadow-lg">
+                    {product.badge}
+                  </div>
+                )}
+              </div>
+
+              {allImages.length > 1 && (
+                <div className="flex items-center gap-2">
+                  {allImages.map((imgUrl, idx) => (
+                    <button
+                      key={idx}
+                      type="button"
+                      onClick={() => setSelectedImage(imgUrl)}
+                      className={`relative w-16 h-16 rounded overflow-hidden border-2 transition-all cursor-pointer ${
+                        selectedImage === imgUrl 
+                          ? 'border-[#E8302B] ring-2 ring-[#E8302B]/30 scale-105' 
+                          : 'border-neutral-800 opacity-70 hover:opacity-100'
+                      }`}
+                    >
+                      <img src={imgUrl} alt={`View angle ${idx + 1}`} className="w-full h-full object-cover" />
+                    </button>
+                  ))}
+                  <span className="text-[11px] font-tech text-neutral-400 ml-1">
+                    {allImages.length} views available
+                  </span>
                 </div>
               )}
             </div>

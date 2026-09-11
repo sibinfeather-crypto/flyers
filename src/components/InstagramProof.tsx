@@ -45,14 +45,14 @@ export const InstagramProof: React.FC = () => {
       bike: 'KTM Duke 390',
       location: 'Bangalore',
       rating: 5,
-      comment: 'Ordered track-used Metzeler tyres and a tail tidy. The tyres had almost full tread depth on edges and delivery took just 3 days to Bangalore. The Flyer\'s is the real deal!',
+      comment: 'Ordered track-used Metzeler tyres and OEM indicators. The tyres had almost full tread depth on edges and delivery took just 3 days to Bangalore. The Flyer\'s is the real deal!',
     },
     {
       name: 'Vipin Kumar',
-      bike: 'Triumph Speed 400',
+      bike: 'Bajaj Dominar 400',
       location: 'Kochi, Kerala',
       rating: 5,
-      comment: 'Bought the rugged headlight grille and paddock stand for ₹1,550 offer. High quality build and heavy gauge steel. Ordered through WhatsApp in 2 minutes.',
+      comment: 'Bought the Dominar OEM split LED tail light assembly. Genuine Varroc unit, authentic wiring coupler, and dispatched within 24 hours of WhatsApp payment confirmation.',
     },
     {
       name: 'Rohit Sharma',

@@ -108,9 +108,9 @@ export const Footer: React.FC = () => {
               <li><Link to="/catalog?category=jackets" className="hover:text-[#E8302B] transition-colors">Riding Jackets (₹1,799)</Link></li>
               <li><Link to="/track-tyres" className="hover:text-[#E8302B] transition-colors text-[#E8302B] font-bold">Track-Used Tyres (From ₹1,800)</Link></li>
               <li><Link to="/catalog?category=gloves" className="hover:text-[#E8302B] transition-colors">Riding Gloves (₹799)</Link></li>
-              <li><Link to="/catalog?category=bike-accessories" className="hover:text-[#E8302B] transition-colors">Speed 400 & Duke Parts</Link></li>
+              <li><Link to="/catalog?category=bike-accessories" className="hover:text-[#E8302B] transition-colors">Duke & Dominar Parts</Link></li>
               <li><Link to="/catalog?category=car-accessories" className="hover:text-[#E8302B] transition-colors">Fortuner Batman Mirrors</Link></li>
-              <li><Link to="/catalog?category=spares" className="hover:text-[#E8302B] transition-colors">Paddock Stands & Spares</Link></li>
+              <li><Link to="/catalog?category=spares" className="hover:text-[#E8302B] transition-colors">OEM Assemblies & Spares</Link></li>
             </ul>
           </div>
 

@@ -10,6 +10,7 @@ export interface ProductItem {
   features: string[];
   vehicleCompatibility?: string;
   image: string;
+  galleryImages?: string[];
   inStock: boolean;
   isHotOffer?: boolean;
 }

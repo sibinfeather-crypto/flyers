@@ -30,7 +30,7 @@ export const About: React.FC = () => {
             </p>
 
             <p className="text-neutral-400 text-sm sm:text-base leading-relaxed">
-              Whether you need corner-gripping track-used tyres for your trackday weapon, authentic KTM & superbike spares, heavy-duty paddock stands, or custom Batman styling kits for your car — every single part is personally inspected, video-verified, and packed with heavy-duty protection for pan-India courier dispatch.
+              Whether you need corner-gripping track-used tyres for your trackday weapon, authentic KTM & superbike spares, high-output LED conversion kits, or custom Batman styling kits for your car — every single part is personally inspected, video-verified, and packed with heavy-duty protection for pan-India courier dispatch.
             </p>
 
             {/* Core Trust Pillars */}
