@@ -1,14 +1,34 @@
 import { BUSINESS_INFO } from '../data/catalog';
 
-export function getWhatsAppOrderUrl(productName: string, price?: number | string, category?: string): string {
+export function getWhatsAppOrderUrl(
+  productOrName: string | { name: string; price?: number | string; categoryLabel?: string; category?: string },
+  price?: number | string,
+  category?: string
+): string {
   const basePhone = BUSINESS_INFO.phone;
-  let text = `Hi The Flyer's! 🏁\n\nI am interested in ordering: *${productName}*`;
-  
-  if (price) {
-    text += ` (Offer: ₹${price})`;
+  let resolvedName = '';
+  let resolvedPrice = price;
+  let resolvedCategory = category;
+
+  if (typeof productOrName === 'object' && productOrName !== null) {
+    resolvedName = productOrName.name;
+    if (resolvedPrice === undefined) {
+      resolvedPrice = productOrName.price;
+    }
+    if (resolvedCategory === undefined) {
+      resolvedCategory = productOrName.categoryLabel || productOrName.category;
+    }
+  } else {
+    resolvedName = String(productOrName);
   }
-  if (category) {
-    text += `\nCategory: ${category}`;
+
+  let text = `Hi The Flyer's! 🏁\n\nI am interested in ordering: *${resolvedName}*`;
+  
+  if (resolvedPrice !== undefined) {
+    text += ` (Offer: ₹${resolvedPrice})`;
+  }
+  if (resolvedCategory) {
+    text += `\nCategory: ${resolvedCategory}`;
   }
   
   text += `\n\nPlease share availability, pictures, and delivery timeline for my pincode. Thanks!`;
