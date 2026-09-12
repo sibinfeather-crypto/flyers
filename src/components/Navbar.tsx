@@ -21,19 +21,19 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenInquiry }) => {
   return (
     <header className="sticky top-0 z-50 w-full bg-[#070709]/95 backdrop-blur-md border-b border-[#222227]">
       {/* High-Octane Top Announcement Bar - Continuous Loop Scrolling */}
-      <div className="bg-gradient-to-r from-[#8a1410] via-[#E8302B] to-[#8a1410] text-white text-xs py-1.5 font-tech tracking-wider uppercase overflow-hidden whitespace-nowrap select-none border-b border-[#E8302B]/30">
+      <div className="bg-gradient-to-r from-[#8a1410] via-[#E8302B] to-[#8a1410] text-white text-[10px] sm:text-xs py-0.5 sm:py-1 font-tech tracking-wider uppercase overflow-hidden whitespace-nowrap select-none border-b border-[#E8302B]/30">
         <div className="animate-marquee flex items-center">
           {/* First loop track */}
           <div className="flex items-center space-x-6 shrink-0 pr-6">
             {[1, 2, 3, 4].map((idx) => (
               <div key={`track-1-${idx}`} className="flex items-center space-x-4 shrink-0">
                 <span className="flex items-center space-x-1.5 font-bold">
-                  <Truck className="w-3.5 h-3.5 shrink-0" />
+                  <Truck className="w-3 h-3 sm:w-3.5 sm:h-3.5 shrink-0" />
                   <span>PAN-INDIA EXPRESS SHIPPING</span>
                 </span>
                 <span className="text-white/40">|</span>
                 <span className="flex items-center space-x-1.5 text-neutral-100 font-semibold">
-                  <ShieldCheck className="w-3.5 h-3.5 shrink-0" />
+                  <ShieldCheck className="w-3 h-3 sm:w-3.5 sm:h-3.5 shrink-0" />
                   <span>71.5K+ COMMUNITY • 100% TESTED GENUINE SPARES</span>
                 </span>
                 <span className="text-white/40">★</span>
@@ -46,12 +46,12 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenInquiry }) => {
             {[1, 2, 3, 4].map((idx) => (
               <div key={`track-2-${idx}`} className="flex items-center space-x-4 shrink-0">
                 <span className="flex items-center space-x-1.5 font-bold">
-                  <Truck className="w-3.5 h-3.5 shrink-0" />
+                  <Truck className="w-3 h-3 sm:w-3.5 sm:h-3.5 shrink-0" />
                   <span>PAN-INDIA EXPRESS SHIPPING</span>
                 </span>
                 <span className="text-white/40">|</span>
                 <span className="flex items-center space-x-1.5 text-neutral-100 font-semibold">
-                  <ShieldCheck className="w-3.5 h-3.5 shrink-0" />
+                  <ShieldCheck className="w-3 h-3 sm:w-3.5 sm:h-3.5 shrink-0" />
                   <span>71.5K+ COMMUNITY • 100% TESTED GENUINE SPARES</span>
                 </span>
                 <span className="text-white/40">★</span>
@@ -62,14 +62,14 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenInquiry }) => {
       </div>
 
       {/* Main Navbar */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-20">
+      <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
+        <div className="flex items-center justify-between h-12 sm:h-14 lg:h-16">
           {/* Brand Logo */}
-          <Link to="/" className="flex items-center group py-2 focus:outline-none" aria-label="The Flyer's Home">
+          <Link to="/" className="flex items-center group py-0 focus:outline-none" aria-label="The Flyer's Home">
             <img
               src="/assets/theflyers.logo.png"
               alt="The Flyer's"
-              className="h-10 sm:h-12 md:h-14 w-auto object-contain transition-transform duration-200 group-hover:scale-105"
+              className="h-6 sm:h-7.5 lg:h-8.5 w-auto object-contain transition-transform duration-200 group-hover:scale-105"
               referrerPolicy="no-referrer"
             />
           </Link>
@@ -118,10 +118,10 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenInquiry }) => {
           <div className="flex lg:hidden items-center space-x-2">
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="p-2 text-neutral-300 hover:text-white bg-[#18181b] border border-[#27272a] rounded-md focus:outline-none"
+              className="p-1.5 sm:p-2 text-neutral-300 hover:text-white bg-[#18181b] border border-[#27272a] rounded-md focus:outline-none"
               aria-label="Toggle menu"
             >
-              {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+              {mobileMenuOpen ? <X className="w-5 h-5 sm:w-6 sm:h-6" /> : <Menu className="w-5 h-5 sm:w-6 sm:h-6" />}
             </button>
           </div>
         </div>
