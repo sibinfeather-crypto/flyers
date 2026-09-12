@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { NavLink, Link } from 'react-router-dom';
-import { Logo } from './Logo';
 import { getWhatsAppGeneralInquiryUrl } from '../utils/whatsapp';
 import { MessageCircle, Menu, X, ShieldCheck, Truck, Sparkles } from 'lucide-react';
 
@@ -66,8 +65,13 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenInquiry }) => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-20">
           {/* Brand Logo */}
-          <Link to="/" className="flex items-center gap-2 group py-2">
-            <Logo size="md" />
+          <Link to="/" className="flex items-center group py-2 focus:outline-none" aria-label="The Flyer's Home">
+            <img
+              src="/assets/theflyers.logo.png"
+              alt="The Flyer's"
+              className="h-10 sm:h-12 md:h-14 w-auto object-contain transition-transform duration-200 group-hover:scale-105"
+              referrerPolicy="no-referrer"
+            />
           </Link>
 
           {/* Desktop Navigation Links */}
