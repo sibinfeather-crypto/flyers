@@ -67,6 +67,27 @@
   box-shadow: 0 0 15px -2px rgba(232, 48, 43, 0.35);
 }
 
+/* Infinite Marquee Loop */
+@keyframes marquee {
+  0% {
+    transform: translateX(0%);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+.animate-marquee {
+  display: flex;
+  width: max-content;
+  animation: marquee 25s linear infinite;
+  will-change: transform;
+}
+
+.animate-marquee:hover {
+  animation-play-state: paused;
+}
+
 /* Subtle scrollbar */
 ::-webkit-scrollbar {
   width: 6px;

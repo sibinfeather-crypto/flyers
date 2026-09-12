@@ -1,9 +1,8 @@
 import React, { useState } from 'react';
 import { NavLink, Link } from 'react-router-dom';
 import { Logo } from './Logo';
-import { BUSINESS_INFO } from '../data/catalog';
 import { getWhatsAppGeneralInquiryUrl } from '../utils/whatsapp';
-import { Phone, MessageCircle, Instagram, Menu, X, ShieldCheck, Truck, Sparkles } from 'lucide-react';
+import { MessageCircle, Menu, X, ShieldCheck, Truck, Sparkles } from 'lucide-react';
 
 interface NavbarProps {
   onOpenInquiry: (topic?: string) => void;
@@ -22,39 +21,43 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenInquiry }) => {
 
   return (
     <header className="sticky top-0 z-50 w-full bg-[#070709]/95 backdrop-blur-md border-b border-[#222227]">
-      {/* High-Octane Top Announcement Bar */}
-      <div className="bg-gradient-to-r from-[#8a1410] via-[#E8302B] to-[#8a1410] text-white text-xs py-1.5 px-4 font-tech tracking-wider uppercase overflow-hidden">
-        <div className="max-w-7xl mx-auto flex items-center justify-between">
-          <div className="flex items-center space-x-4">
-            <span className="flex items-center space-x-1 font-bold">
-              <Truck className="w-3.5 h-3.5" />
-              <span>PAN-INDIA EXPRESS SHIPPING</span>
-            </span>
-            <span className="hidden md:inline-block text-white/50">|</span>
-            <span className="hidden md:flex items-center space-x-1 text-neutral-200">
-              <ShieldCheck className="w-3.5 h-3.5" />
-              <span>71.5K+ COMMUNITY • 100% TESTED GENUINE SPARES</span>
-            </span>
+      {/* High-Octane Top Announcement Bar - Continuous Loop Scrolling */}
+      <div className="bg-gradient-to-r from-[#8a1410] via-[#E8302B] to-[#8a1410] text-white text-xs py-1.5 font-tech tracking-wider uppercase overflow-hidden whitespace-nowrap select-none border-b border-[#E8302B]/30">
+        <div className="animate-marquee flex items-center">
+          {/* First loop track */}
+          <div className="flex items-center space-x-6 shrink-0 pr-6">
+            {[1, 2, 3, 4].map((idx) => (
+              <div key={`track-1-${idx}`} className="flex items-center space-x-4 shrink-0">
+                <span className="flex items-center space-x-1.5 font-bold">
+                  <Truck className="w-3.5 h-3.5 shrink-0" />
+                  <span>PAN-INDIA EXPRESS SHIPPING</span>
+                </span>
+                <span className="text-white/40">|</span>
+                <span className="flex items-center space-x-1.5 text-neutral-100 font-semibold">
+                  <ShieldCheck className="w-3.5 h-3.5 shrink-0" />
+                  <span>71.5K+ COMMUNITY • 100% TESTED GENUINE SPARES</span>
+                </span>
+                <span className="text-white/40">★</span>
+              </div>
+            ))}
           </div>
 
-          <div className="flex items-center space-x-4 text-xs font-semibold">
-            <a
-              href={BUSINESS_INFO.instagramUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center space-x-1 hover:text-black transition-colors"
-            >
-              <Instagram className="w-3 h-3" />
-              <span className="hidden sm:inline">@__theflyers__</span>
-            </a>
-            <span className="text-white/50">|</span>
-            <a
-              href={`tel:${BUSINESS_INFO.phone}`}
-              className="flex items-center space-x-1 hover:text-black transition-colors font-bold"
-            >
-              <Phone className="w-3 h-3" />
-              <span>{BUSINESS_INFO.phoneDisplay}</span>
-            </a>
+          {/* Second duplicate track for seamless infinite transition */}
+          <div className="flex items-center space-x-6 shrink-0 pr-6" aria-hidden="true">
+            {[1, 2, 3, 4].map((idx) => (
+              <div key={`track-2-${idx}`} className="flex items-center space-x-4 shrink-0">
+                <span className="flex items-center space-x-1.5 font-bold">
+                  <Truck className="w-3.5 h-3.5 shrink-0" />
+                  <span>PAN-INDIA EXPRESS SHIPPING</span>
+                </span>
+                <span className="text-white/40">|</span>
+                <span className="flex items-center space-x-1.5 text-neutral-100 font-semibold">
+                  <ShieldCheck className="w-3.5 h-3.5 shrink-0" />
+                  <span>71.5K+ COMMUNITY • 100% TESTED GENUINE SPARES</span>
+                </span>
+                <span className="text-white/40">★</span>
+              </div>
+            ))}
           </div>
         </div>
       </div>
@@ -161,7 +164,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenInquiry }) => {
               className="w-full py-3 bg-[#E8302B] text-white font-racing text-xl tracking-wider font-bold text-center flex items-center justify-center space-x-2 clip-slant-button shadow-lg shadow-[#E8302B]/30"
             >
               <MessageCircle className="w-5 h-5 fill-white" />
-              <span>SHOP ON WHATSAPP (9025719644)</span>
+              <span>SHOP ON WHATSAPP</span>
             </a>
           </div>
         </div>

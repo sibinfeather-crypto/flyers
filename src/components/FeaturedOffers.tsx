@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import { FEATURED_OFFERS } from '../data/catalog';
 import { ProductItem } from '../types';
 import { getWhatsAppOrderUrl } from '../utils/whatsapp';
@@ -6,9 +7,12 @@ import { Flame, MessageCircle, Tag, Check, ShieldAlert, Sparkles, ArrowRight } f
 
 interface FeaturedOffersProps {
   onSelectProduct: (product: ProductItem) => void;
+  limit?: number;
 }
 
-export const FeaturedOffers: React.FC<FeaturedOffersProps> = ({ onSelectProduct }) => {
+export const FeaturedOffers: React.FC<FeaturedOffersProps> = ({ onSelectProduct, limit = 5 }) => {
+  const displayedOffers = FEATURED_OFFERS.slice(0, limit);
+
   return (
     <section id="offers" className="py-20 bg-[#09090c] border-b border-[#222227] relative overflow-hidden">
       {/* Red Ambient Glow Elements */}
@@ -28,15 +32,24 @@ export const FeaturedOffers: React.FC<FeaturedOffersProps> = ({ onSelectProduct 
               FEATURED OFFERS & <span className="text-[#E8302B]">HOT DROPS</span>
             </h2>
           </div>
-          <div className="flex items-center space-x-2 text-xs font-tech text-neutral-400">
-            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-ping" />
-            <span>Prices verified from active Instagram catalogue drops</span>
+          <div className="flex flex-col sm:flex-row sm:items-center gap-3">
+            <div className="flex items-center space-x-2 text-xs font-tech text-neutral-400">
+              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-ping" />
+              <span>5 Top Drops Active</span>
+            </div>
+            <Link
+              to="/catalog"
+              className="inline-flex items-center space-x-1.5 px-4 py-2 bg-[#17171d] hover:bg-[#22222a] border border-[#2e2e38] hover:border-[#E8302B] text-xs font-tech uppercase text-neutral-200 hover:text-white transition-all clip-slant-button group"
+            >
+              <span>View Full Catalog</span>
+              <ArrowRight className="w-3.5 h-3.5 text-[#E8302B] group-hover:translate-x-1 transition-transform" />
+            </Link>
           </div>
         </div>
 
         {/* Offers Cards Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {FEATURED_OFFERS.map((offer) => {
+          {displayedOffers.map((offer) => {
             const savings = offer.originalPrice 
               ? Math.round(((offer.originalPrice - offer.price) / offer.originalPrice) * 100) 
               : 0;

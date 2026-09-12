@@ -169,10 +169,10 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({ product,
                   href={whatsappUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="w-full py-3.5 bg-[#E8302B] hover:bg-[#cf2520] text-white font-racing text-xl font-bold tracking-wider clip-slant-button flex items-center justify-center space-x-2 transition-transform hover:scale-[1.02] red-glow-sm"
+                  className="w-full py-3.5 px-6 bg-[#E8302B] hover:bg-[#cf2520] text-white font-racing text-xl font-bold tracking-wider clip-slant-button flex items-center justify-center space-x-2 transition-transform hover:scale-[1.02] red-glow-sm"
                 >
-                  <MessageCircle className="w-5 h-5 fill-white" />
-                  <span>ORDER ON WHATSAPP (+91 90257 19644)</span>
+                  <MessageCircle className="w-5 h-5 fill-white shrink-0" />
+                  <span className="whitespace-nowrap">ORDER ON WHATSAPP</span>
                 </a>
                 <p className="text-center text-[11px] font-tech text-neutral-500 mt-2">
                   Pre-fills product name and offer price directly to WhatsApp for instant verification.

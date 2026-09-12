@@ -84,25 +84,25 @@ export const Hero: React.FC<HeroProps> = ({ onSearchChange, searchQuery: initial
         </p>
 
         {/* Primary CTAs */}
-        <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-4 w-full max-w-md">
+        <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4 w-full max-w-md">
           {/* Main WhatsApp CTA */}
           <a
             href={getWhatsAppGeneralInquiryUrl()}
             target="_blank"
             rel="noopener noreferrer"
             id="hero-whatsapp-order-button"
-            className="w-full sm:w-auto px-8 py-4 bg-[#E8302B] hover:bg-[#cf2520] text-white font-racing text-2xl font-bold tracking-wider clip-slant-button flex items-center justify-center space-x-3 transition-all transform hover:-translate-y-1 red-glow active:scale-95"
+            className="w-full sm:w-auto px-5 py-2.5 sm:px-6 sm:py-3 bg-[#E8302B] hover:bg-[#cf2520] text-white font-racing text-base sm:text-lg font-bold tracking-wider clip-slant-button flex items-center justify-center space-x-2 transition-all transform hover:-translate-y-0.5 red-glow active:scale-95"
           >
-            <MessageCircle className="w-6 h-6 fill-white" />
+            <MessageCircle className="w-4 h-4 sm:w-5 sm:h-5 fill-white shrink-0" />
             <span>SHOP ON WHATSAPP</span>
           </a>
 
           {/* Secondary Explorer CTA */}
           <Link
             to="/catalog"
-            className="w-full sm:w-auto px-6 py-4 bg-neutral-900/90 hover:bg-neutral-800 text-neutral-100 font-racing text-xl font-bold tracking-wider border border-neutral-700 clip-slant-button flex items-center justify-center space-x-2 transition-all"
+            className="w-full sm:w-auto px-5 py-2.5 sm:px-6 sm:py-3 bg-neutral-900/90 hover:bg-neutral-800 text-neutral-100 font-racing text-base sm:text-lg font-bold tracking-wider border border-neutral-700 clip-slant-button flex items-center justify-center space-x-2 transition-all hover:border-neutral-500"
           >
-            <Flame className="w-5 h-5 text-[#E8302B]" />
+            <Flame className="w-4 h-4 sm:w-5 sm:h-5 text-[#E8302B] shrink-0" />
             <span>VIEW CATALOG & OFFERS</span>
           </Link>
         </div>
