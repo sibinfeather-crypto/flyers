@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { FEATURED_OFFERS } from '../data/catalog';
+import { useCatalog } from '../context/CatalogContext';
 import { ProductItem } from '../types';
 import { getWhatsAppOrderUrl } from '../utils/whatsapp';
 import { Flame, MessageCircle, Tag, Check, ShieldAlert, Sparkles, ArrowRight } from 'lucide-react';
@@ -10,8 +10,11 @@ interface FeaturedOffersProps {
   limit?: number;
 }
 
-export const FeaturedOffers: React.FC<FeaturedOffersProps> = ({ onSelectProduct, limit = 5 }) => {
-  const displayedOffers = FEATURED_OFFERS.slice(0, limit);
+export const FeaturedOffers: React.FC<FeaturedOffersProps> = ({ onSelectProduct, limit = 6 }) => {
+  const { products, addOrderLead } = useCatalog();
+
+  const hotOffers = products.filter(p => p.isHotOffer);
+  const displayedOffers = (hotOffers.length > 0 ? hotOffers : products).slice(0, limit);
 
   return (
     <section id="offers" className="py-20 bg-[#09090c] border-b border-[#222227] relative overflow-hidden">
@@ -35,7 +38,7 @@ export const FeaturedOffers: React.FC<FeaturedOffersProps> = ({ onSelectProduct,
           <div className="flex flex-col sm:flex-row sm:items-center gap-3">
             <div className="flex items-center space-x-2 text-xs font-tech text-neutral-400">
               <span className="w-2 h-2 rounded-full bg-emerald-500 animate-ping" />
-              <span>5 Top Drops Active</span>
+              <span>{displayedOffers.length} Top Drops Active</span>
             </div>
             <Link
               to="/catalog"
@@ -153,6 +156,15 @@ export const FeaturedOffers: React.FC<FeaturedOffersProps> = ({ onSelectProduct,
                       href={whatsappUrl}
                       target="_blank"
                       rel="noopener noreferrer"
+                      onClick={() => {
+                        addOrderLead({
+                          productName: offer.name,
+                          productId: offer.id,
+                          amount: offer.price,
+                          source: 'whatsapp_click',
+                          notes: `Inquiry initiated from Featured Offers drop: ₹${offer.price}`,
+                        });
+                      }}
                       className="w-full py-3 bg-[#E8302B] hover:bg-[#cf2520] text-white font-racing text-lg font-bold tracking-wider clip-slant-button flex items-center justify-center space-x-2 transition-all group-hover:shadow-lg group-hover:shadow-[#E8302B]/30"
                     >
                       <MessageCircle className="w-4 h-4 fill-white" />

@@ -12,6 +12,8 @@ import { CatalogPage } from './pages/CatalogPage';
 import { TrackTyresPage } from './pages/TrackTyresPage';
 import { AboutPage } from './pages/AboutPage';
 import { ContactPage } from './pages/ContactPage';
+import { AdminPage } from './pages/AdminPage';
+import { CatalogProvider } from './context/CatalogContext';
 
 import { ProductItem } from './types';
 
@@ -26,83 +28,91 @@ export default function App() {
   };
 
   return (
-    <HashRouter>
-      <ScrollToTop />
-      <div className="min-h-screen bg-[#070709] text-neutral-100 flex flex-col font-sans selection:bg-[#E8302B] selection:text-white">
-        {/* Sticky Racing Navigation Bar */}
-        <Navbar onOpenInquiry={handleOpenInquiry} />
+    <CatalogProvider>
+      <HashRouter>
+        <ScrollToTop />
+        <div className="min-h-screen bg-[#070709] text-neutral-100 flex flex-col font-sans selection:bg-[#E8302B] selection:text-white">
+          {/* Sticky Racing Navigation Bar */}
+          <Navbar onOpenInquiry={handleOpenInquiry} />
 
-        {/* Dynamic Route Pages */}
-        <main className="flex-1">
-          <Routes>
-            <Route
-              path="/"
-              element={
-                <HomePage
-                  onSelectProduct={setActiveProductModal}
-                  onOpenInquiry={handleOpenInquiry}
-                />
-              }
-            />
-            <Route
-              path="/catalog"
-              element={
-                <CatalogPage
-                  onSelectProduct={setActiveProductModal}
-                  onOpenInquiry={handleOpenInquiry}
-                />
-              }
-            />
-            <Route
-              path="/track-tyres"
-              element={
-                <TrackTyresPage
-                  onSelectProduct={setActiveProductModal}
-                  onOpenInquiry={handleOpenInquiry}
-                />
-              }
-            />
-            <Route
-              path="/about"
-              element={
-                <AboutPage
-                  onOpenInquiry={handleOpenInquiry}
-                />
-              }
-            />
-            <Route
-              path="/contact"
-              element={
-                <ContactPage />
-              }
-            />
-            {/* Fallback redirect */}
-            <Route path="*" element={<Navigate to="/" replace />} />
-          </Routes>
-        </main>
+          {/* Dynamic Route Pages */}
+          <main className="flex-1">
+            <Routes>
+              <Route
+                path="/"
+                element={
+                  <HomePage
+                    onSelectProduct={setActiveProductModal}
+                    onOpenInquiry={handleOpenInquiry}
+                  />
+                }
+              />
+              <Route
+                path="/catalog"
+                element={
+                  <CatalogPage
+                    onSelectProduct={setActiveProductModal}
+                    onOpenInquiry={handleOpenInquiry}
+                  />
+                }
+              />
+              <Route
+                path="/track-tyres"
+                element={
+                  <TrackTyresPage
+                    onSelectProduct={setActiveProductModal}
+                    onOpenInquiry={handleOpenInquiry}
+                  />
+                }
+              />
+              <Route
+                path="/about"
+                element={
+                  <AboutPage
+                    onOpenInquiry={handleOpenInquiry}
+                  />
+                }
+              />
+              <Route
+                path="/contact"
+                element={
+                  <ContactPage />
+                }
+              />
+              <Route
+                path="/admin/*"
+                element={
+                  <AdminPage />
+                }
+              />
+              {/* Fallback redirect */}
+              <Route path="*" element={<Navigate to="/" replace />} />
+            </Routes>
+          </main>
 
-        {/* Global Footer */}
-        <Footer />
+          {/* Global Footer */}
+          <Footer />
 
-        {/* Global Floating WhatsApp Quick Action Button */}
-        <FloatingWhatsApp />
+          {/* Global Floating WhatsApp Quick Action Button */}
+          <FloatingWhatsApp />
 
-        {/* Global Product Specification & Order Modal */}
-        {activeProductModal && (
-          <ProductDetailModal
-            key={activeProductModal.id}
-            product={activeProductModal}
-            onClose={() => setActiveProductModal(null)}
+          {/* Global Product Specification & Order Modal */}
+          {activeProductModal && (
+            <ProductDetailModal
+              key={activeProductModal.id}
+              product={activeProductModal}
+              onClose={() => setActiveProductModal(null)}
+            />
+          )}
+
+          {/* Global Custom Spare / Fitment WhatsApp Concierge Modal */}
+          <CustomInquiryModal
+            isOpen={isInquiryModalOpen}
+            onClose={() => setIsInquiryModalOpen(false)}
+            initialTopic={inquiryInitialTopic}
           />
-        )}
-
-        {/* Global Custom Spare / Fitment WhatsApp Concierge Modal */}
-        <CustomInquiryModal
-          isOpen={isInquiryModalOpen}
-          onClose={() => setIsInquiryModalOpen(false)}
-          initialTopic={inquiryInitialTopic}
-        />
-      </div>
-    </HashRouter>
+        </div>
+      </HashRouter>
+    </CatalogProvider>
   );
 }

@@ -1,5 +1,6 @@
 import React from 'react';
 import { ProductItem } from '../types';
+import { useCatalog } from '../context/CatalogContext';
 import { getWhatsAppOrderUrl } from '../utils/whatsapp';
 import { X, MessageCircle, Check, ShieldCheck, Truck, Clock, Sparkles } from 'lucide-react';
 
@@ -9,6 +10,7 @@ interface ProductDetailModalProps {
 }
 
 export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({ product, onClose }) => {
+  const { addOrderLead } = useCatalog();
   const [selectedImage, setSelectedImage] = React.useState<string | null>(null);
 
   React.useEffect(() => {
@@ -169,6 +171,15 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({ product,
                   href={whatsappUrl}
                   target="_blank"
                   rel="noopener noreferrer"
+                  onClick={() => {
+                    addOrderLead({
+                      productName: product.name,
+                      productId: product.id,
+                      amount: product.price,
+                      source: 'whatsapp_click',
+                      notes: `Inquiry from Product Detail Modal: ₹${product.price}`,
+                    });
+                  }}
                   className="w-full py-3.5 px-6 bg-[#E8302B] hover:bg-[#cf2520] text-white font-racing text-xl font-bold tracking-wider clip-slant-button flex items-center justify-center space-x-2 transition-transform hover:scale-[1.02] red-glow-sm"
                 >
                   <MessageCircle className="w-5 h-5 fill-white shrink-0" />

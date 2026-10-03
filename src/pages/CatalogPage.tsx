@@ -1,6 +1,7 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { PRODUCTS_CATALOG, CATEGORIES, BUSINESS_INFO } from '../data/catalog';
+import { CATEGORIES, BUSINESS_INFO } from '../data/catalog';
+import { useCatalog } from '../context/CatalogContext';
 import { ProductItem } from '../types';
 import { getWhatsAppOrderUrl, getWhatsAppGeneralInquiryUrl } from '../utils/whatsapp';
 import { 
@@ -24,6 +25,7 @@ export const CatalogPage: React.FC<CatalogPageProps> = ({
   onSelectProduct,
   onOpenInquiry,
 }) => {
+  const { products, addOrderLead } = useCatalog();
   const [searchParams, setSearchParams] = useSearchParams();
 
   // Read initial values from URL params
@@ -80,7 +82,7 @@ export const CatalogPage: React.FC<CatalogPageProps> = ({
   ];
 
   const filteredProducts = useMemo(() => {
-    return PRODUCTS_CATALOG.filter((item) => {
+    return products.filter((item) => {
       // Category filter
       if (selectedCategory !== 'all' && item.category !== selectedCategory) {
         return false;
@@ -365,6 +367,15 @@ export const CatalogPage: React.FC<CatalogPageProps> = ({
                           href={whatsappOrderUrl}
                           target="_blank"
                           rel="noopener noreferrer"
+                          onClick={() => {
+                            addOrderLead({
+                              productName: product.name,
+                              productId: product.id,
+                              amount: product.price,
+                              source: 'whatsapp_click',
+                              notes: `Inquiry from Catalog: ₹${product.price}`,
+                            });
+                          }}
                           className="py-2.5 px-3 bg-[#E8302B] hover:bg-[#cf2520] text-white font-racing text-sm font-bold tracking-wider clip-slant-button flex items-center justify-center space-x-1.5 transition-all shadow-md shadow-[#E8302B]/20"
                         >
                           <MessageCircle className="w-3.5 h-3.5 fill-white" />

@@ -13,6 +13,9 @@ export interface ProductItem {
   galleryImages?: string[];
   inStock: boolean;
   isHotOffer?: boolean;
+  sku?: string;
+  stockCount?: number;
+  updatedAt?: string;
 }
 
 export interface ProductCategory {
@@ -32,4 +35,39 @@ export interface CustomerProof {
   subtitle: string;
   type: 'review' | 'shipping' | 'tyre' | 'bike';
   stat?: string;
+}
+
+export type OrderStatus = 'new' | 'contacted' | 'paid' | 'dispatched' | 'delivered' | 'cancelled';
+
+export interface OrderLead {
+  id: string;
+  customerName: string;
+  customerPhone: string;
+  customerLocation?: string;
+  productName: string;
+  productId?: string;
+  amount?: number;
+  status: OrderStatus;
+  courierName?: string;
+  trackingNumber?: string;
+  notes?: string;
+  source: 'whatsapp_click' | 'custom_inquiry' | 'manual';
+  createdAt: string;
+  updatedAt?: string;
+}
+
+export interface StoreSettings {
+  storeName: string;
+  tagline: string;
+  phone: string;
+  phoneDisplay: string;
+  whatsappNumber: string;
+  instagram: string;
+  instagramUrl: string;
+  threadsUrl: string;
+  followersCount: string;
+  shippingInfo: string;
+  marqueeAnnouncement: string;
+  enableMarquee: boolean;
+  adminPasscode: string;
 }

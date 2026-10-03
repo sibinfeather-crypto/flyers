@@ -1,11 +1,13 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Logo } from './Logo';
-import { BUSINESS_INFO } from '../data/catalog';
+import { useCatalog } from '../context/CatalogContext';
 import { getWhatsAppGeneralInquiryUrl } from '../utils/whatsapp';
-import { Phone, MessageCircle, Instagram, MapPin, Truck, ShieldCheck, Mail, ArrowUp } from 'lucide-react';
+import { Phone, MessageCircle, Instagram, MapPin, Truck, ShieldCheck, Mail, ArrowUp, Shield } from 'lucide-react';
 
 export const Footer: React.FC = () => {
+  const { storeSettings } = useCatalog();
+
   const scrollToTop = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
@@ -30,11 +32,11 @@ export const Footer: React.FC = () => {
 
           <div className="flex flex-wrap items-center gap-3">
             <a
-              href={`tel:${BUSINESS_INFO.phone}`}
+              href={`tel:${storeSettings.phone}`}
               className="px-5 py-3 bg-neutral-900 hover:bg-neutral-800 text-white font-racing text-lg font-bold tracking-wider clip-slant-button flex items-center space-x-2 border border-neutral-700"
             >
               <Phone className="w-4 h-4 text-[#E8302B]" />
-              <span>CALL: {BUSINESS_INFO.phoneDisplay}</span>
+              <span>CALL: {storeSettings.phoneDisplay}</span>
             </a>
 
             <a
@@ -65,7 +67,7 @@ export const Footer: React.FC = () => {
 
             <div className="flex items-center space-x-3 pt-2">
               <a
-                href={BUSINESS_INFO.instagramUrl}
+                href={storeSettings.instagramUrl}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="w-10 h-10 rounded bg-neutral-900 hover:bg-[#E8302B] text-neutral-300 hover:text-white flex items-center justify-center transition-colors border border-neutral-800"
@@ -74,7 +76,7 @@ export const Footer: React.FC = () => {
                 <Instagram className="w-5 h-5" />
               </a>
               <a
-                href={BUSINESS_INFO.threadsUrl}
+                href={storeSettings.threadsUrl}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="w-10 h-10 rounded bg-neutral-900 hover:bg-[#E8302B] text-neutral-300 hover:text-white flex items-center justify-center transition-colors border border-neutral-800 font-bold text-sm"
@@ -94,7 +96,7 @@ export const Footer: React.FC = () => {
             </div>
 
             <div className="pt-2 text-xs text-neutral-500">
-              Instagram: <strong className="text-neutral-300">@__theflyers__</strong> (71.5K+ Followers)
+              Instagram: <strong className="text-neutral-300">{storeSettings.instagram}</strong> ({storeSettings.followersCount} Followers)
             </div>
           </div>
 
@@ -125,6 +127,12 @@ export const Footer: React.FC = () => {
               <li><Link to="/track-tyres" className="hover:text-[#E8302B] transition-colors">Track Tyres Special</Link></li>
               <li><Link to="/about" className="hover:text-[#E8302B] transition-colors">About The Flyer's</Link></li>
               <li><Link to="/contact" className="hover:text-[#E8302B] transition-colors">Contact & Order Concierge</Link></li>
+              <li>
+                <Link to="/admin" className="text-neutral-400 hover:text-[#E8302B] transition-colors flex items-center gap-1 font-semibold">
+                  <Shield className="w-3 h-3 text-[#E8302B]" />
+                  <span>Admin Portal</span>
+                </Link>
+              </li>
             </ul>
           </div>
 

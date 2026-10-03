@@ -1,6 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import { Link } from 'react-router-dom';
-import { PRODUCTS_CATALOG, BUSINESS_INFO } from '../data/catalog';
+import { BUSINESS_INFO } from '../data/catalog';
+import { useCatalog } from '../context/CatalogContext';
 import { ProductItem } from '../types';
 import { getWhatsAppOrderUrl, getWhatsAppGeneralInquiryUrl } from '../utils/whatsapp';
 import { 
@@ -26,6 +27,7 @@ export const TrackTyresPage: React.FC<TrackTyresPageProps> = ({
   onSelectProduct,
   onOpenInquiry,
 }) => {
+  const { products, addOrderLead } = useCatalog();
   const [selectedSize, setSelectedSize] = useState<string>('all');
 
   const tyreSizes = [
@@ -39,13 +41,13 @@ export const TrackTyresPage: React.FC<TrackTyresPageProps> = ({
   ];
 
   const tyreProducts = useMemo(() => {
-    return PRODUCTS_CATALOG.filter(item => {
+    return products.filter(item => {
       if (item.category !== 'tyres') return false;
       if (selectedSize === 'all') return true;
       if (selectedSize === 'pair') return item.name.toLowerCase().includes('pair') || item.name.toLowerCase().includes('matched');
       return item.name.includes(selectedSize) || item.description.includes(selectedSize) || item.vehicleCompatibility?.includes(selectedSize);
     });
-  }, [selectedSize]);
+  }, [products, selectedSize]);
 
   return (
     <div className="py-12 bg-[#070709] min-h-screen relative">
@@ -232,6 +234,15 @@ export const TrackTyresPage: React.FC<TrackTyresPageProps> = ({
                         href={whatsappUrl}
                         target="_blank"
                         rel="noopener noreferrer"
+                        onClick={() => {
+                          addOrderLead({
+                            productName: prod.name,
+                            productId: prod.id,
+                            amount: prod.price,
+                            source: 'whatsapp_click',
+                            notes: `Tyre Inquiry from Track Tyres Page: ₹${prod.price}`,
+                          });
+                        }}
                         className="py-2.5 px-3 bg-[#E8302B] hover:bg-[#cf2520] text-white font-racing text-base font-bold tracking-wider clip-slant-button flex items-center justify-center space-x-1.5 transition-all shadow-md shadow-[#E8302B]/20"
                       >
                         <MessageCircle className="w-3.5 h-3.5 fill-white" />

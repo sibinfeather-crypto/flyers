@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { BUSINESS_INFO } from '../data/catalog';
+import { useCatalog } from '../context/CatalogContext';
 import { X, MessageCircle, Send, Bike, Car, Wrench, Shield } from 'lucide-react';
 
 interface CustomInquiryModalProps {
@@ -13,6 +13,7 @@ export const CustomInquiryModal: React.FC<CustomInquiryModalProps> = ({
   onClose,
   initialTopic = '',
 }) => {
+  const { storeSettings, addOrderLead } = useCatalog();
   const [vehicleType, setVehicleType] = useState<'bike' | 'car'>('bike');
   const [model, setModel] = useState('');
   const [partRequired, setPartRequired] = useState(initialTopic);
@@ -29,6 +30,16 @@ export const CustomInquiryModal: React.FC<CustomInquiryModalProps> = ({
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
+    // Log to admin order leads
+    addOrderLead({
+      customerName: model ? `${model} Rider` : 'Custom Inquirer',
+      customerPhone: 'Via WhatsApp Concierge',
+      customerLocation: pincode.trim() || 'India',
+      productName: partRequired.trim() || 'Custom Spare / Accessory Request',
+      source: 'custom_inquiry',
+      notes: `Vehicle: ${vehicleType === 'bike' ? 'Motorcycle' : 'Car'} (${model.trim() || 'Unspecified'}), Pincode: ${pincode.trim() || 'N/A'}`,
+    });
+
     let message = `Hi The Flyer's! 🏁\n\nI have a custom part inquiry:`;
     message += `\n- *Vehicle Type*: ${vehicleType === 'bike' ? 'Motorcycle' : 'Car'}`;
     if (model.trim()) message += `\n- *Model*: ${model.trim()}`;
@@ -36,7 +47,7 @@ export const CustomInquiryModal: React.FC<CustomInquiryModalProps> = ({
     if (pincode.trim()) message += `\n- *Pincode / Location*: ${pincode.trim()}`;
     message += `\n\nPlease let me know price, availability, and dispatch options. Thanks!`;
 
-    const whatsappUrl = `https://wa.me/91${BUSINESS_INFO.phone}?text=${encodeURIComponent(message)}`;
+    const whatsappUrl = `https://wa.me/91${storeSettings.phone}?text=${encodeURIComponent(message)}`;
     window.open(whatsappUrl, '_blank', 'noopener,noreferrer');
     onClose();
   };

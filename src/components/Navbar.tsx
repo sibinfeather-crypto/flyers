@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { NavLink, Link } from 'react-router-dom';
 import { getWhatsAppGeneralInquiryUrl } from '../utils/whatsapp';
-import { MessageCircle, Menu, X, ShieldCheck, Truck, Sparkles } from 'lucide-react';
+import { useCatalog } from '../context/CatalogContext';
+import { MessageCircle, Menu, X, ShieldCheck, Truck, Sparkles, Shield } from 'lucide-react';
 
 interface NavbarProps {
   onOpenInquiry: (topic?: string) => void;
@@ -9,6 +10,7 @@ interface NavbarProps {
 
 export const Navbar: React.FC<NavbarProps> = ({ onOpenInquiry }) => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const { storeSettings, isAdminAuthenticated } = useCatalog();
 
   const navLinks = [
     { label: 'HOME', to: '/' },
@@ -21,45 +23,37 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenInquiry }) => {
   return (
     <header className="sticky top-0 z-50 w-full bg-[#070709]/95 backdrop-blur-md border-b border-[#222227]">
       {/* High-Octane Top Announcement Bar - Continuous Loop Scrolling */}
-      <div className="bg-gradient-to-r from-[#8a1410] via-[#E8302B] to-[#8a1410] text-white text-[10px] sm:text-xs py-0.5 sm:py-1 font-tech tracking-wider uppercase overflow-hidden whitespace-nowrap select-none border-b border-[#E8302B]/30">
-        <div className="animate-marquee flex items-center">
-          {/* First loop track */}
-          <div className="flex items-center space-x-6 shrink-0 pr-6">
-            {[1, 2, 3, 4].map((idx) => (
-              <div key={`track-1-${idx}`} className="flex items-center space-x-4 shrink-0">
-                <span className="flex items-center space-x-1.5 font-bold">
-                  <Truck className="w-3 h-3 sm:w-3.5 sm:h-3.5 shrink-0" />
-                  <span>PAN-INDIA EXPRESS SHIPPING</span>
-                </span>
-                <span className="text-white/40">|</span>
-                <span className="flex items-center space-x-1.5 text-neutral-100 font-semibold">
-                  <ShieldCheck className="w-3 h-3 sm:w-3.5 sm:h-3.5 shrink-0" />
-                  <span>71.5K+ COMMUNITY • 100% TESTED GENUINE SPARES</span>
-                </span>
-                <span className="text-white/40">★</span>
-              </div>
-            ))}
-          </div>
+      {storeSettings.enableMarquee && (
+        <div className="bg-gradient-to-r from-[#8a1410] via-[#E8302B] to-[#8a1410] text-white text-[10px] sm:text-xs py-0.5 sm:py-1 font-tech tracking-wider uppercase overflow-hidden whitespace-nowrap select-none border-b border-[#E8302B]/30">
+          <div className="animate-marquee flex items-center">
+            {/* First loop track */}
+            <div className="flex items-center space-x-6 shrink-0 pr-6">
+              {[1, 2, 3, 4].map((idx) => (
+                <div key={`track-1-${idx}`} className="flex items-center space-x-4 shrink-0">
+                  <span className="flex items-center space-x-1.5 font-bold">
+                    <Truck className="w-3 h-3 sm:w-3.5 sm:h-3.5 shrink-0" />
+                    <span>{storeSettings.marqueeAnnouncement}</span>
+                  </span>
+                  <span className="text-white/40">★</span>
+                </div>
+              ))}
+            </div>
 
-          {/* Second duplicate track for seamless infinite transition */}
-          <div className="flex items-center space-x-6 shrink-0 pr-6" aria-hidden="true">
-            {[1, 2, 3, 4].map((idx) => (
-              <div key={`track-2-${idx}`} className="flex items-center space-x-4 shrink-0">
-                <span className="flex items-center space-x-1.5 font-bold">
-                  <Truck className="w-3 h-3 sm:w-3.5 sm:h-3.5 shrink-0" />
-                  <span>PAN-INDIA EXPRESS SHIPPING</span>
-                </span>
-                <span className="text-white/40">|</span>
-                <span className="flex items-center space-x-1.5 text-neutral-100 font-semibold">
-                  <ShieldCheck className="w-3 h-3 sm:w-3.5 sm:h-3.5 shrink-0" />
-                  <span>71.5K+ COMMUNITY • 100% TESTED GENUINE SPARES</span>
-                </span>
-                <span className="text-white/40">★</span>
-              </div>
-            ))}
+            {/* Second duplicate track for seamless infinite transition */}
+            <div className="flex items-center space-x-6 shrink-0 pr-6" aria-hidden="true">
+              {[1, 2, 3, 4].map((idx) => (
+                <div key={`track-2-${idx}`} className="flex items-center space-x-4 shrink-0">
+                  <span className="flex items-center space-x-1.5 font-bold">
+                    <Truck className="w-3 h-3 sm:w-3.5 sm:h-3.5 shrink-0" />
+                    <span>{storeSettings.marqueeAnnouncement}</span>
+                  </span>
+                  <span className="text-white/40">★</span>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
-      </div>
+      )}
 
       {/* Main Navbar */}
       <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
@@ -112,10 +106,30 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenInquiry }) => {
               <span className="hidden xl:inline">Custom Spare</span>
               <span className="xl:hidden">Inquiry</span>
             </button>
+
+            <Link
+              to="/admin"
+              className={`p-2 rounded border transition-colors ${
+                isAdminAuthenticated
+                  ? 'bg-[#E8302B]/20 border-[#E8302B] text-[#E8302B]'
+                  : 'bg-[#18181b] hover:bg-[#222228] border-neutral-700 text-neutral-400 hover:text-white'
+              }`}
+              title="Admin Portal"
+            >
+              <Shield className="w-4 h-4" />
+            </Link>
           </div>
 
           {/* Mobile Menu Button */}
           <div className="flex lg:hidden items-center space-x-2">
+            <Link
+              to="/admin"
+              className="p-1.5 text-neutral-400 hover:text-[#E8302B] bg-[#18181b] border border-[#27272a] rounded-md"
+              title="Admin Panel"
+            >
+              <Shield className="w-4 h-4" />
+            </Link>
+
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
               className="p-1.5 sm:p-2 text-neutral-300 hover:text-white bg-[#18181b] border border-[#27272a] rounded-md focus:outline-none"
@@ -148,6 +162,18 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenInquiry }) => {
                 <span className="text-xs font-tech text-neutral-500">→</span>
               </NavLink>
             ))}
+
+            <Link
+              to="/admin"
+              onClick={() => setMobileMenuOpen(false)}
+              className="py-2.5 px-2 border-b border-neutral-800/60 text-neutral-400 hover:text-[#E8302B] flex items-center justify-between font-racing text-lg"
+            >
+              <span className="flex items-center gap-2">
+                <Shield className="w-4 h-4 text-[#E8302B]" />
+                <span>ADMIN PANEL</span>
+              </span>
+              <span className="text-xs font-tech text-neutral-500">🔒</span>
+            </Link>
           </nav>
 
           <div className="pt-2 flex flex-col space-y-3">
