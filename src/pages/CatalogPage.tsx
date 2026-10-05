@@ -38,7 +38,7 @@ export const CatalogPage: React.FC<CatalogPageProps> = ({
   const [sortBy, setSortBy] = useState<'featured' | 'low-to-high' | 'high-to-low'>(
     (sortParam as any) || 'featured'
   );
-  const [priceMax, setPriceMax] = useState<number>(10000);
+  const [priceMax, setPriceMax] = useState<number>(30000);
 
   // Sync state when URL params change
   useEffect(() => {
@@ -87,8 +87,8 @@ export const CatalogPage: React.FC<CatalogPageProps> = ({
       if (selectedCategory !== 'all' && item.category !== selectedCategory) {
         return false;
       }
-      // Price ceiling filter
-      if (item.price > priceMax) {
+      // Price ceiling filter (if less than 30000, enforce limit; if 30000+, show all)
+      if (priceMax < 30000 && item.price > priceMax) {
         return false;
       }
       // Search filter
@@ -106,13 +106,13 @@ export const CatalogPage: React.FC<CatalogPageProps> = ({
       if (sortBy === 'high-to-low') return b.price - a.price;
       return 0;
     });
-  }, [selectedCategory, searchQuery, sortBy, priceMax]);
+  }, [selectedCategory, searchQuery, sortBy, priceMax, products]);
 
   const handleClearFilters = () => {
     setSelectedCategory('all');
     setSearchQuery('');
     setSortBy('featured');
-    setPriceMax(10000);
+    setPriceMax(30000);
     setSearchParams({});
   };
 
@@ -196,16 +196,17 @@ export const CatalogPage: React.FC<CatalogPageProps> = ({
             {/* Price Max Slider */}
             <div className="md:col-span-3 flex items-center space-x-3">
               <span className="text-xs font-tech text-neutral-400 whitespace-nowrap">
-                Max ₹{priceMax.toLocaleString('en-IN')}:
+                {priceMax >= 30000 ? 'Any Price:' : `Max ₹${priceMax.toLocaleString('en-IN')}:`}
               </span>
               <input
                 type="range"
                 min="500"
-                max="10000"
+                max="30000"
                 step="500"
                 value={priceMax}
                 onChange={(e) => setPriceMax(Number(e.target.value))}
                 className="w-full accent-[#E8302B] cursor-pointer"
+                title="Filter by maximum price"
               />
             </div>
 

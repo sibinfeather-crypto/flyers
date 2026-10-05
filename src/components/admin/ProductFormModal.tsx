@@ -19,6 +19,7 @@ interface ProductFormModalProps {
   isOpen: boolean;
   onClose: () => void;
   product?: ProductItem | null;
+  defaultCategory?: ProductItem['category'];
 }
 
 const STOCK_SHOP_ASSETS = [
@@ -65,6 +66,7 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({
   isOpen,
   onClose,
   product,
+  defaultCategory,
 }) => {
   const { addProduct, updateProduct, categories } = useCatalog();
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -103,9 +105,11 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({
       setSku(product.sku || '');
     } else {
       // Default blank product
+      const targetCat = defaultCategory || 'spares';
+      const catObj = categories.find(c => c.id === targetCat);
       setName('');
-      setCategory('spares');
-      setCategoryLabel('Spares');
+      setCategory(targetCat);
+      setCategoryLabel(catObj?.name || 'Spares');
       setPrice(1999);
       setOriginalPrice(3499);
       setBadge('OEM GENUINE');
@@ -118,7 +122,7 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({
       setIsHotOffer(false);
       setSku(`FLY-${Math.floor(1000 + Math.random() * 9000)}`);
     }
-  }, [product, isOpen]);
+  }, [product, isOpen, defaultCategory, categories]);
 
   if (!isOpen) return null;
 

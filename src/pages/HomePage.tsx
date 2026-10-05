@@ -3,8 +3,9 @@ import { Link, useNavigate } from 'react-router-dom';
 import { Hero } from '../components/Hero';
 import { FeaturedOffers } from '../components/FeaturedOffers';
 import { CATEGORIES, BUSINESS_INFO } from '../data/catalog';
+import { useCatalog } from '../context/CatalogContext';
 import { ProductItem } from '../types';
-import { getWhatsAppGeneralInquiryUrl } from '../utils/whatsapp';
+import { getWhatsAppGeneralInquiryUrl, getWhatsAppOrderUrl } from '../utils/whatsapp';
 import { 
   ArrowRight, 
   Disc, 
@@ -21,7 +22,9 @@ import {
   Wrench,
   Car,
   Cog,
-  Zap
+  Zap,
+  Tag,
+  Check
 } from 'lucide-react';
 
 interface HomePageProps {
@@ -31,6 +34,9 @@ interface HomePageProps {
 
 export const HomePage: React.FC<HomePageProps> = ({ onSelectProduct, onOpenInquiry }) => {
   const navigate = useNavigate();
+  const { products, addOrderLead } = useCatalog();
+
+  const sparesProducts = products.filter(p => p.category === 'spares');
 
   const handleHeroSearch = (query: string) => {
     if (query.trim()) {
@@ -169,6 +175,193 @@ export const HomePage: React.FC<HomePageProps> = ({ onSelectProduct, onOpenInqui
 
       {/* 4. Live Drops & Featured Offers */}
       <FeaturedOffers onSelectProduct={onSelectProduct} />
+
+      {/* 4b. Genuine Motorcycle & Car Spares Hub */}
+      <section className="py-20 bg-[#0a0a0e] border-b border-[#222227] relative overflow-hidden">
+        {/* Subtle grid pattern background */}
+        <div className="absolute inset-0 opacity-5 pointer-events-none bg-[radial-gradient(#E8302B_1px,transparent_1px)] [background-size:16px_16px]" />
+
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+          <div className="flex flex-col md:flex-row md:items-end justify-between mb-10 gap-4">
+            <div>
+              <div className="inline-flex items-center space-x-2 px-3 py-1 bg-[#E8302B]/15 border border-[#E8302B]/30 text-[#E8302B] text-xs font-tech tracking-widest uppercase mb-2 clip-badge-slant">
+                <Cog className="w-3.5 h-3.5" />
+                <span>OEM & PERFORMANCE SPARES</span>
+              </div>
+              <h2 className="text-3xl sm:text-5xl font-racing font-black uppercase text-white tracking-wide">
+                GENUINE <span className="text-[#E8302B]">SPARES & ASSEMBLIES</span>
+              </h2>
+              <p className="mt-2 text-xs sm:text-sm text-neutral-400 font-tech max-w-2xl">
+                RCB radial brake master pumps, KTM split LED projector assemblies, Varroc OEM tail lights, Gen 3 TFT meters, alloy wheels, and brake rotors. Bench-tested with pan-India dispatch.
+              </p>
+            </div>
+
+            <div className="flex flex-wrap items-center gap-3">
+              <Link
+                to="/catalog?category=spares"
+                className="px-4 py-2 bg-[#E8302B] hover:bg-[#cf2520] text-white font-racing tracking-wider uppercase text-sm clip-slant-button flex items-center space-x-2 transition-transform hover:scale-105"
+              >
+                <span>Browse All Spares ({sparesProducts.length})</span>
+                <ArrowRight className="w-4 h-4" />
+              </Link>
+
+              <button
+                onClick={() => onOpenInquiry('Custom Spare Part Request')}
+                className="px-4 py-2 bg-neutral-900 hover:bg-neutral-800 border border-neutral-700 text-neutral-200 text-xs font-tech uppercase tracking-wider flex items-center gap-1.5"
+              >
+                <MessageCircle className="w-3.5 h-3.5 text-[#E8302B]" />
+                <span>Request Custom Spare</span>
+              </button>
+            </div>
+          </div>
+
+          {/* Spares Grid (Show top 6 spares) */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {sparesProducts.slice(0, 6).map((spare) => {
+              const savings = spare.originalPrice
+                ? Math.round(((spare.originalPrice - spare.price) / spare.originalPrice) * 100)
+                : 0;
+
+              const whatsappUrl = getWhatsAppOrderUrl(spare.name, spare.price, 'Spares');
+
+              return (
+                <div
+                  key={spare.id}
+                  className="bg-[#111116] border border-[#22222a] hover:border-[#E8302B] transition-all duration-300 flex flex-col justify-between group overflow-hidden"
+                >
+                  {/* Image container */}
+                  <div
+                    onClick={() => onSelectProduct(spare)}
+                    className="relative h-56 bg-neutral-950 overflow-hidden cursor-pointer flex items-center justify-center p-3"
+                  >
+                    <img
+                      src={spare.image}
+                      alt={spare.name}
+                      className="h-full w-full object-contain group-hover:scale-105 transition-transform duration-300"
+                      onError={(e) => {
+                        (e.target as HTMLImageElement).src = '/assets/duke-led-headlight-1.jpeg';
+                      }}
+                    />
+
+                    {/* Badge */}
+                    <div className="absolute top-3 left-3 flex flex-col gap-1.5">
+                      {spare.badge && (
+                        <span className="px-2.5 py-0.5 bg-[#E8302B] text-white text-[10px] font-tech font-bold uppercase tracking-wider">
+                          {spare.badge}
+                        </span>
+                      )}
+                      {savings > 0 && (
+                        <span className="px-2 py-0.5 bg-black/80 text-emerald-400 border border-emerald-500/30 text-[10px] font-tech font-bold">
+                          {savings}% OFF
+                        </span>
+                      )}
+                    </div>
+
+                    <div className="absolute top-3 right-3">
+                      <span className={`px-2 py-0.5 text-[10px] font-tech font-bold uppercase ${
+                        spare.inStock ? 'bg-emerald-950/80 text-emerald-300 border border-emerald-700/50' : 'bg-red-950/80 text-red-300 border border-red-700/50'
+                      }`}>
+                        {spare.inStock ? 'IN STOCK' : 'OUT OF STOCK'}
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Body Content */}
+                  <div className="p-4 flex-1 flex flex-col justify-between">
+                    <div>
+                      {spare.vehicleCompatibility && (
+                        <div className="text-[11px] font-tech text-[#E8302B] font-semibold mb-1 line-clamp-1">
+                          Fitment: {spare.vehicleCompatibility}
+                        </div>
+                      )}
+                      <h3
+                        onClick={() => onSelectProduct(spare)}
+                        className="font-racing font-bold text-base text-white hover:text-[#E8302B] transition-colors cursor-pointer line-clamp-2"
+                      >
+                        {spare.name}
+                      </h3>
+                      <p className="text-xs text-neutral-400 font-tech mt-1.5 line-clamp-2">
+                        {spare.description}
+                      </p>
+                    </div>
+
+                    {/* Price and Action Buttons */}
+                    <div className="mt-4 pt-3 border-t border-neutral-800/80">
+                      <div className="flex items-baseline justify-between mb-3">
+                        <div className="flex items-baseline gap-2">
+                          <span className="text-xl font-racing font-black text-white">
+                            ₹{spare.price.toLocaleString('en-IN')}
+                          </span>
+                          {spare.originalPrice && (
+                            <span className="text-xs font-tech text-neutral-500 line-through">
+                              ₹{spare.originalPrice.toLocaleString('en-IN')}
+                            </span>
+                          )}
+                        </div>
+                        <span className="text-[11px] font-tech text-neutral-400">
+                          Pan-India Ship
+                        </span>
+                      </div>
+
+                      <div className="grid grid-cols-2 gap-2">
+                        <button
+                          onClick={() => onSelectProduct(spare)}
+                          className="py-2 px-3 bg-neutral-900 hover:bg-neutral-800 border border-neutral-700 text-neutral-200 text-xs font-tech uppercase tracking-wider text-center"
+                        >
+                          Specs & Fitment
+                        </button>
+                        <a
+                          href={whatsappUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          onClick={() => {
+                            addOrderLead({
+                              productName: spare.name,
+                              productId: spare.id,
+                              amount: spare.price,
+                              source: 'whatsapp_click',
+                              status: 'new',
+                            });
+                          }}
+                          className="py-2 px-3 bg-[#E8302B] hover:bg-[#cf2520] text-white font-tech font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-1.5"
+                        >
+                          <MessageCircle className="w-3.5 h-3.5" />
+                          <span>Buy on WA</span>
+                        </a>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+
+          {/* Quick Spare Finder Helper Strip */}
+          <div className="mt-10 p-4 bg-[#14141a] border border-[#2b2b35] flex flex-col sm:flex-row items-center justify-between gap-4 clip-badge-slant">
+            <div className="flex items-center space-x-3 text-center sm:text-left">
+              <div className="p-2.5 bg-[#E8302B]/20 text-[#E8302B] rounded">
+                <Wrench className="w-5 h-5" />
+              </div>
+              <div>
+                <h4 className="font-racing font-bold text-white uppercase text-sm">
+                  Looking for a Specific KTM, Dominar, Yamaha or Royal Enfield Spare?
+                </h4>
+                <p className="text-xs font-tech text-neutral-400">
+                  Send your vehicle registration model & photo of the damaged part on WhatsApp for instant price quote and availability.
+                </p>
+              </div>
+            </div>
+
+            <button
+              onClick={() => onOpenInquiry('OEM Motorcycle Part Quote')}
+              className="px-5 py-2.5 bg-[#E8302B] hover:bg-[#cf2520] text-white font-tech font-bold text-xs uppercase tracking-wider whitespace-nowrap shrink-0 flex items-center gap-1.5"
+            >
+              <MessageCircle className="w-4 h-4" />
+              <span>WhatsApp Part Check</span>
+            </button>
+          </div>
+        </div>
+      </section>
 
       {/* 5. Special Feature Banner: Track-Used Tyres Hub */}
       <section className="py-16 bg-gradient-to-r from-[#120808] via-[#1a0c0c] to-[#0d0707] border-y border-[#3a1514] relative overflow-hidden">

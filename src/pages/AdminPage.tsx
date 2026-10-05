@@ -31,7 +31,8 @@ import {
   ArrowRight,
   Layers,
   Sparkles,
-  Gauge
+  Gauge,
+  Cog
 } from 'lucide-react';
 
 type AdminTab = 'overview' | 'products' | 'tyres' | 'orders' | 'settings';
@@ -88,9 +89,13 @@ export const AdminPage: React.FC = () => {
   const hotOfferCount = products.filter(p => p.isHotOffer).length;
   const newOrdersCount = orders.filter(o => o.status === 'new').length;
   const tyreProductsCount = products.filter(p => p.category === 'tyres').length;
+  const sparesProductsCount = products.filter(p => p.category === 'spares').length;
 
-  const handleOpenAddProduct = () => {
+  const [defaultModalCategory, setDefaultModalCategory] = useState<ProductItem['category']>('spares');
+
+  const handleOpenAddProduct = (presetCategory?: ProductItem['category']) => {
     setEditingProduct(null);
+    setDefaultModalCategory(presetCategory || 'spares');
     setIsProductModalOpen(true);
   };
 
@@ -229,20 +234,40 @@ export const AdminPage: React.FC = () => {
         {activeTab === 'overview' && (
           <div className="space-y-6">
             {/* Top Stat Cards Grid */}
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3.5">
               <div 
-                onClick={() => setActiveTab('products')} 
+                onClick={() => {
+                  setSelectedCategory('all');
+                  setActiveTab('products');
+                }} 
                 className="bg-[#111116] border border-neutral-800 hover:border-[#E8302B]/60 p-4 rounded-lg cursor-pointer transition-all group"
               >
                 <div className="flex items-center justify-between text-neutral-400 text-xs mb-2">
-                  <span className="uppercase font-semibold tracking-wider">Catalog Products</span>
+                  <span className="uppercase font-semibold tracking-wider">All Products</span>
                   <Package className="w-4 h-4 text-[#E8302B] group-hover:scale-110 transition-transform" />
                 </div>
                 <div className="text-3xl font-racing font-bold text-white">{totalProducts}</div>
-                <div className="text-[11px] text-neutral-400 mt-1 flex items-center gap-2">
+                <div className="text-[11px] text-neutral-400 mt-1 flex items-center gap-1.5">
                   <span className="text-emerald-400 font-semibold">{inStockCount} In Stock</span>
                   <span>•</span>
                   <span className="text-red-400 font-semibold">{outOfStockCount} Out</span>
+                </div>
+              </div>
+
+              <div 
+                onClick={() => {
+                  setSelectedCategory('spares');
+                  setActiveTab('products');
+                }} 
+                className="bg-[#111116] border border-neutral-800 hover:border-orange-500/60 p-4 rounded-lg cursor-pointer transition-all group"
+              >
+                <div className="flex items-center justify-between text-neutral-400 text-xs mb-2">
+                  <span className="uppercase font-semibold tracking-wider">Spares & OE</span>
+                  <Cog className="w-4 h-4 text-orange-400 group-hover:rotate-45 transition-transform" />
+                </div>
+                <div className="text-3xl font-racing font-bold text-white">{sparesProductsCount}</div>
+                <div className="text-[11px] text-orange-400/90 mt-1 font-semibold">
+                  RCB, KTM OE & Assemblies
                 </div>
               </div>
 
@@ -256,7 +281,7 @@ export const AdminPage: React.FC = () => {
                 </div>
                 <div className="text-3xl font-racing font-bold text-white">{orders.length}</div>
                 <div className="text-[11px] text-neutral-400 mt-1">
-                  <span className="text-amber-400 font-semibold">{newOrdersCount} New Inquiries</span> to respond
+                  <span className="text-amber-400 font-semibold">{newOrdersCount} New</span> to respond
                 </div>
               </div>
 
@@ -265,12 +290,12 @@ export const AdminPage: React.FC = () => {
                 className="bg-[#111116] border border-neutral-800 hover:border-sky-600/60 p-4 rounded-lg cursor-pointer transition-all group"
               >
                 <div className="flex items-center justify-between text-neutral-400 text-xs mb-2">
-                  <span className="uppercase font-semibold tracking-wider">Track Tyres Stock</span>
+                  <span className="uppercase font-semibold tracking-wider">Track Tyres</span>
                   <Disc className="w-4 h-4 text-sky-400 group-hover:scale-110 transition-transform" />
                 </div>
                 <div className="text-3xl font-racing font-bold text-white">{tyreProductsCount}</div>
                 <div className="text-[11px] text-neutral-400 mt-1">
-                  Pirelli, Metzeler & Michelin track batches
+                  Pirelli & Metzeler stock
                 </div>
               </div>
 
@@ -279,7 +304,7 @@ export const AdminPage: React.FC = () => {
                   setStockFilter('hotoffer');
                   setActiveTab('products');
                 }} 
-                className="bg-[#111116] border border-neutral-800 hover:border-amber-600/60 p-4 rounded-lg cursor-pointer transition-all group"
+                className="bg-[#111116] border border-neutral-800 hover:border-amber-600/60 p-4 rounded-lg cursor-pointer transition-all group col-span-2 sm:col-span-1"
               >
                 <div className="flex items-center justify-between text-neutral-400 text-xs mb-2">
                   <span className="uppercase font-semibold tracking-wider">Hot Offers</span>
@@ -287,29 +312,43 @@ export const AdminPage: React.FC = () => {
                 </div>
                 <div className="text-3xl font-racing font-bold text-white">{hotOfferCount}</div>
                 <div className="text-[11px] text-neutral-400 mt-1">
-                  Featured on Homepage hero ribbon
+                  Homepage drops ribbon
                 </div>
               </div>
             </div>
 
             {/* Quick Management Shortcuts */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
               <div className="bg-[#121217] border border-neutral-800 p-5 rounded-lg flex flex-col justify-between">
                 <div>
-                  <h4 className="text-sm font-racing font-bold text-white uppercase tracking-wider mb-1">
-                    NEW PRODUCT LAUNCH
-                  </h4>
+                  <div className="flex items-center justify-between mb-1">
+                    <h4 className="text-sm font-racing font-bold text-white uppercase tracking-wider">
+                      SPARES & OE REPLACEMENTS
+                    </h4>
+                    <Cog className="w-4 h-4 text-orange-400" />
+                  </div>
                   <p className="text-xs text-neutral-400 mb-4">
-                    Add new KTM spares, RCB radial pumps, Duke conversion headlights, or motorcycle riding gear.
+                    Add new KTM Duke headlight conversions, RCB radial master cylinders, TFT shells, alloy wheels, or brake discs.
                   </p>
                 </div>
-                <button
-                  onClick={handleOpenAddProduct}
-                  className="w-full py-2 bg-[#E8302B] hover:bg-[#cf2520] text-white font-racing font-bold uppercase rounded flex items-center justify-center gap-1.5 transition-all"
-                >
-                  <Plus className="w-4 h-4" />
-                  <span>Launch New Product</span>
-                </button>
+                <div className="grid grid-cols-2 gap-2">
+                  <button
+                    onClick={() => handleOpenAddProduct('spares')}
+                    className="py-2 px-3 bg-[#E8302B] hover:bg-[#cf2520] text-white font-racing font-bold uppercase text-xs rounded flex items-center justify-center gap-1 transition-all"
+                  >
+                    <Plus className="w-3.5 h-3.5" />
+                    <span>+ Add Spare</span>
+                  </button>
+                  <button
+                    onClick={() => {
+                      setSelectedCategory('spares');
+                      setActiveTab('products');
+                    }}
+                    className="py-2 px-3 bg-neutral-800 hover:bg-neutral-700 text-neutral-200 font-racing font-bold uppercase text-xs rounded flex items-center justify-center gap-1 transition-all"
+                  >
+                    <span>View Spares ({sparesProductsCount})</span>
+                  </button>
+                </div>
               </div>
 
               <div className="bg-[#121217] border border-neutral-800 p-5 rounded-lg flex flex-col justify-between">
@@ -327,6 +366,24 @@ export const AdminPage: React.FC = () => {
                 >
                   <Disc className="w-4 h-4 text-[#E8302B]" />
                   <span>Manage Track Tyres</span>
+                </button>
+              </div>
+
+              <div className="bg-[#121217] border border-neutral-800 p-5 rounded-lg flex flex-col justify-between">
+                <div>
+                  <h4 className="text-sm font-racing font-bold text-white uppercase tracking-wider mb-1">
+                    LAUNCH GENERAL PRODUCT
+                  </h4>
+                  <p className="text-xs text-neutral-400 mb-4">
+                    Add new riding gear, helmets, jackets, carbon gloves, car ambient kits, or mirror wings.
+                  </p>
+                </div>
+                <button
+                  onClick={() => handleOpenAddProduct()}
+                  className="w-full py-2 bg-[#1b1b24] hover:bg-[#262633] border border-neutral-700 text-white font-racing font-bold uppercase rounded flex items-center justify-center gap-1.5 transition-all"
+                >
+                  <Plus className="w-4 h-4 text-[#E8302B]" />
+                  <span>Launch New Item</span>
                 </button>
               </div>
 
@@ -458,6 +515,25 @@ export const AdminPage: React.FC = () => {
                   title="Grid View"
                 >
                   <LayoutGrid className="w-4 h-4" />
+                </button>
+              </div>
+
+              {/* Action Buttons */}
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => handleOpenAddProduct('spares')}
+                  className="px-3 py-1.5 bg-orange-600 hover:bg-orange-500 text-white font-racing font-bold uppercase rounded flex items-center gap-1.5 whitespace-nowrap transition-all shadow-sm"
+                  title="Quick add a new spare part"
+                >
+                  <Cog className="w-3.5 h-3.5" />
+                  <span>+ Add Spare</span>
+                </button>
+                <button
+                  onClick={() => handleOpenAddProduct()}
+                  className="px-3 py-1.5 bg-[#E8302B] hover:bg-[#cf2520] text-white font-racing font-bold uppercase rounded flex items-center gap-1.5 whitespace-nowrap transition-all shadow-sm"
+                >
+                  <Plus className="w-3.5 h-3.5" />
+                  <span>+ New Item</span>
                 </button>
               </div>
             </div>
@@ -697,6 +773,7 @@ export const AdminPage: React.FC = () => {
             setEditingProduct(null);
           }}
           product={editingProduct}
+          defaultCategory={defaultModalCategory}
         />
       )}
     </div>

@@ -7,7 +7,8 @@ import {
   doc, 
   setDoc, 
   deleteDoc, 
-  onSnapshot 
+  onSnapshot,
+  writeBatch
 } from 'firebase/firestore';
 
 interface CatalogContextType {
@@ -202,29 +203,54 @@ export const CatalogProvider: React.FC<{ children: React.ReactNode }> = ({ child
     const unsubscribe = onSnapshot(
       productsCol,
       async (snapshot) => {
-        // If Firestore is empty (first ever deployment), seed initial products to cloud
+        // If Firestore is empty (first ever deployment), seed initial products to cloud in an atomic batch
         if (snapshot.empty) {
-          console.log('Seeding initial catalog to Firestore cloud database...');
+          console.log('Seeding initial catalog to Firestore cloud database with atomic batch...');
           try {
+            const batch = writeBatch(db);
             for (const item of PRODUCTS_CATALOG) {
-              await setDoc(doc(db, 'products', item.id), sanitizeForFirestore(item));
+              const docRef = doc(db, 'products', item.id);
+              batch.set(docRef, sanitizeForFirestore(item));
             }
+            await batch.commit();
           } catch (seedErr) {
             console.error('Error seeding initial catalog to Firestore:', seedErr);
           }
           return;
         }
 
-        // Map cloud documents
-        const cloudProducts: ProductItem[] = [];
+        // Map cloud documents & separate deleted items
+        const cloudProductsMap = new Map<string, ProductItem>();
+        const deletedIds = new Set<string>();
+
         snapshot.forEach((docSnap) => {
-          cloudProducts.push({ ...(docSnap.data() as ProductItem), id: docSnap.id });
+          const data = docSnap.data() as any;
+          if (data.isDeleted) {
+            deletedIds.add(docSnap.id);
+          } else {
+            cloudProductsMap.set(docSnap.id, { ...(data as ProductItem), id: docSnap.id });
+          }
         });
 
+        // Assemble active products:
+        // 1. All cloud products (admin additions and edits take highest precedence)
+        // 2. Default catalog items that haven't been deleted or overridden
+        const mergedList: ProductItem[] = [];
+
+        cloudProductsMap.forEach((product) => {
+          mergedList.push(product);
+        });
+
+        for (const defaultItem of PRODUCTS_CATALOG) {
+          if (!cloudProductsMap.has(defaultItem.id) && !deletedIds.has(defaultItem.id)) {
+            mergedList.push(defaultItem);
+          }
+        }
+
         // Update local state and cache
-        setProducts(cloudProducts);
+        setProducts(mergedList);
         try {
-          localStorage.setItem(STORAGE_KEYS.PRODUCTS, JSON.stringify(cloudProducts));
+          localStorage.setItem(STORAGE_KEYS.PRODUCTS, JSON.stringify(mergedList));
         } catch {
           // ignore
         }
@@ -388,7 +414,7 @@ export const CatalogProvider: React.FC<{ children: React.ReactNode }> = ({ child
     setProducts((prev) => prev.filter(p => p.id !== id));
 
     try {
-      await deleteDoc(doc(db, 'products', id));
+      await setDoc(doc(db, 'products', id), { isDeleted: true, updatedAt: new Date().toISOString() }, { merge: true });
     } catch (err) {
       console.error('Error deleting product from Firestore:', err);
     }

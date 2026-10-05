@@ -22,5 +22,10 @@ service cloud.firestore {
       allow read: if true;
       allow write: if isValidId(settingId);
     }
+
+    // Health check and connection validation path
+    match /test/{testId} {
+      allow read: if true;
+    }
   }
 }
