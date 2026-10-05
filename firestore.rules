@@ -1,0 +1,26 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Helper to validate document IDs
+    function isValidId(docId) {
+      return docId.size() > 0 && docId.size() <= 128;
+    }
+
+    // Public catalog products & spares (readable by all buyers globally)
+    match /products/{productId} {
+      allow read: if true;
+      allow write: if isValidId(productId);
+    }
+
+    // Customer inquiries and order leads
+    match /orders/{orderId} {
+      allow read, write: if isValidId(orderId);
+    }
+
+    // Store settings and announcement ticker
+    match /settings/{settingId} {
+      allow read: if true;
+      allow write: if isValidId(settingId);
+    }
+  }
+}

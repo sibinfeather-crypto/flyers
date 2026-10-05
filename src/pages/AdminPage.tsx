@@ -117,6 +117,11 @@ export const AdminPage: React.FC = () => {
               <span className="w-1.5 h-1.5 rounded-full bg-[#E8302B] animate-pulse" />
               <span>ADMIN COMMAND</span>
             </div>
+
+            <div className="hidden md:flex items-center space-x-1.5 px-2 py-0.5 rounded bg-emerald-950/40 border border-emerald-800 text-emerald-400 text-[10px] font-bold tracking-wider uppercase">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping" />
+              <span>CLOUD SYNC (ALL BUYERS LIVE)</span>
+            </div>
           </div>
 
           {/* Quick Actions */}

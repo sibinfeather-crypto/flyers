@@ -1,0 +1,85 @@
+{
+  "entities": {
+    "Product": {
+      "title": "Product",
+      "description": "Motorcycle/Car accessory or genuine spare product",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "category": { "type": "string" },
+        "categoryLabel": { "type": "string" },
+        "price": { "type": "number" },
+        "originalPrice": { "type": "number" },
+        "badge": { "type": "string" },
+        "description": { "type": "string" },
+        "features": { "type": "array" },
+        "vehicleCompatibility": { "type": "string" },
+        "image": { "type": "string" },
+        "galleryImages": { "type": "array" },
+        "inStock": { "type": "boolean" },
+        "isHotOffer": { "type": "boolean" },
+        "sku": { "type": "string" },
+        "updatedAt": { "type": "string" }
+      },
+      "required": ["id", "name", "category", "price", "image", "inStock"]
+    },
+    "OrderLead": {
+      "title": "OrderLead",
+      "description": "Customer inquiry and WhatsApp order lead",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "customerName": { "type": "string" },
+        "customerPhone": { "type": "string" },
+        "customerLocation": { "type": "string" },
+        "productName": { "type": "string" },
+        "productId": { "type": "string" },
+        "amount": { "type": "number" },
+        "status": { "type": "string" },
+        "courierName": { "type": "string" },
+        "trackingNumber": { "type": "string" },
+        "notes": { "type": "string" },
+        "source": { "type": "string" },
+        "createdAt": { "type": "string" },
+        "updatedAt": { "type": "string" }
+      },
+      "required": ["id", "customerName", "productName", "status", "createdAt"]
+    },
+    "StoreSettings": {
+      "title": "StoreSettings",
+      "description": "Store configuration, announcement ticker and contact information",
+      "type": "object",
+      "properties": {
+        "storeName": { "type": "string" },
+        "tagline": { "type": "string" },
+        "phone": { "type": "string" },
+        "phoneDisplay": { "type": "string" },
+        "whatsappNumber": { "type": "string" },
+        "instagram": { "type": "string" },
+        "instagramUrl": { "type": "string" },
+        "threadsUrl": { "type": "string" },
+        "followersCount": { "type": "string" },
+        "shippingInfo": { "type": "string" },
+        "marqueeAnnouncement": { "type": "string" },
+        "enableMarquee": { "type": "boolean" },
+        "adminPasscode": { "type": "string" }
+      },
+      "required": ["phone", "storeName"]
+    }
+  },
+  "firestore": {
+    "/products/{productId}": {
+      "schema": { "$ref": "#/entities/Product" },
+      "description": "Public catalog items and spares for buyers to browse and admin to manage"
+    },
+    "/orders/{orderId}": {
+      "schema": { "$ref": "#/entities/OrderLead" },
+      "description": "Customer inquiries and WhatsApp order leads"
+    },
+    "/settings/{settingId}": {
+      "schema": { "$ref": "#/entities/StoreSettings" },
+      "description": "Store configuration and live announcement ticker"
+    }
+  }
+}

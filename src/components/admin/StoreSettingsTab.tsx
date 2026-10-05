@@ -60,10 +60,10 @@ export const StoreSettingsTab: React.FC = () => {
     if (!file) return;
 
     const reader = new FileReader();
-    reader.onload = (event) => {
+    reader.onload = async (event) => {
       const content = event.target?.result as string;
       if (content) {
-        const result = importData(content);
+        const result = await importData(content);
         if (result.success) {
           showNotice('success', result.message);
         } else {

@@ -1,6 +1,14 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { ProductItem, ProductCategory, OrderLead, StoreSettings } from '../types';
 import { PRODUCTS_CATALOG, CATEGORIES, BUSINESS_INFO } from '../data/catalog';
+import { db, validateFirestoreConnection } from '../firebase';
+import { 
+  collection, 
+  doc, 
+  setDoc, 
+  deleteDoc, 
+  onSnapshot 
+} from 'firebase/firestore';
 
 interface CatalogContextType {
   products: ProductItem[];
@@ -8,21 +16,22 @@ interface CatalogContextType {
   orders: OrderLead[];
   storeSettings: StoreSettings;
   isAdminAuthenticated: boolean;
+  isCloudConnected: boolean;
   adminLogin: (passcode: string) => boolean;
   adminLogout: () => void;
-  addProduct: (product: Omit<ProductItem, 'id'> & { id?: string }) => ProductItem;
-  updateProduct: (id: string, updates: Partial<ProductItem>) => void;
-  deleteProduct: (id: string) => void;
-  duplicateProduct: (id: string) => ProductItem;
-  toggleStock: (id: string) => void;
-  toggleHotOffer: (id: string) => void;
-  addOrderLead: (lead: Partial<OrderLead>) => OrderLead;
-  updateOrderLead: (id: string, updates: Partial<OrderLead>) => void;
-  deleteOrderLead: (id: string) => void;
-  updateStoreSettings: (settings: Partial<StoreSettings>) => void;
-  resetCatalogToDefault: () => void;
+  addProduct: (product: Omit<ProductItem, 'id'> & { id?: string }) => Promise<ProductItem>;
+  updateProduct: (id: string, updates: Partial<ProductItem>) => Promise<void>;
+  deleteProduct: (id: string) => Promise<void>;
+  duplicateProduct: (id: string) => Promise<ProductItem>;
+  toggleStock: (id: string) => Promise<void>;
+  toggleHotOffer: (id: string) => Promise<void>;
+  addOrderLead: (lead: Partial<OrderLead>) => Promise<OrderLead>;
+  updateOrderLead: (id: string, updates: Partial<OrderLead>) => Promise<void>;
+  deleteOrderLead: (id: string) => Promise<void>;
+  updateStoreSettings: (settings: Partial<StoreSettings>) => Promise<void>;
+  resetCatalogToDefault: () => Promise<void>;
   exportData: () => string;
-  importData: (jsonStr: string) => { success: boolean; message: string };
+  importData: (jsonStr: string) => Promise<{ success: boolean; message: string }>;
 }
 
 const STORAGE_KEYS = {
@@ -111,10 +120,20 @@ export const INITIAL_ORDERS: OrderLead[] = [
   }
 ];
 
+// Helper to remove undefined fields for Firestore compatibility
+function sanitizeForFirestore<T extends Record<string, any>>(obj: T): Record<string, any> {
+  const result: Record<string, any> = {};
+  for (const key of Object.keys(obj)) {
+    if (obj[key] !== undefined) {
+      result[key] = obj[key];
+    }
+  }
+  return result;
+}
+
 const CatalogContext = createContext<CatalogContextType | undefined>(undefined);
 
 export const CatalogProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  // 1. Products state (initialized from localStorage or fallback to PRODUCTS_CATALOG)
   const [products, setProducts] = useState<ProductItem[]>(() => {
     try {
       const stored = localStorage.getItem(STORAGE_KEYS.PRODUCTS);
@@ -125,12 +144,11 @@ export const CatalogProvider: React.FC<{ children: React.ReactNode }> = ({ child
         }
       }
     } catch (err) {
-      console.error('Error loading products from localStorage:', err);
+      console.error('Error loading products from cache:', err);
     }
     return PRODUCTS_CATALOG;
   });
 
-  // 2. Orders & Inquiries state
   const [orders, setOrders] = useState<OrderLead[]>(() => {
     try {
       const stored = localStorage.getItem(STORAGE_KEYS.ORDERS);
@@ -141,12 +159,11 @@ export const CatalogProvider: React.FC<{ children: React.ReactNode }> = ({ child
         }
       }
     } catch (err) {
-      console.error('Error loading orders from localStorage:', err);
+      console.error('Error loading orders from cache:', err);
     }
     return INITIAL_ORDERS;
   });
 
-  // 3. Store settings state
   const [storeSettings, setStoreSettings] = useState<StoreSettings>(() => {
     try {
       const stored = localStorage.getItem(STORAGE_KEYS.SETTINGS);
@@ -155,12 +172,11 @@ export const CatalogProvider: React.FC<{ children: React.ReactNode }> = ({ child
         return { ...DEFAULT_STORE_SETTINGS, ...parsed };
       }
     } catch (err) {
-      console.error('Error loading store settings from localStorage:', err);
+      console.error('Error loading settings from cache:', err);
     }
     return DEFAULT_STORE_SETTINGS;
   });
 
-  // 4. Admin Auth state
   const [isAdminAuthenticated, setIsAdminAuthenticated] = useState<boolean>(() => {
     try {
       return sessionStorage.getItem(STORAGE_KEYS.AUTH) === 'true' ||
@@ -170,32 +186,131 @@ export const CatalogProvider: React.FC<{ children: React.ReactNode }> = ({ child
     }
   });
 
-  // Persist Products
-  useEffect(() => {
-    try {
-      localStorage.setItem(STORAGE_KEYS.PRODUCTS, JSON.stringify(products));
-    } catch (err) {
-      console.error('Failed to save products to localStorage:', err);
-    }
-  }, [products]);
+  const [isCloudConnected, setIsCloudConnected] = useState<boolean>(true);
 
-  // Persist Orders
+  // 1. Initial Connection Validation (per skill requirement)
   useEffect(() => {
-    try {
-      localStorage.setItem(STORAGE_KEYS.ORDERS, JSON.stringify(orders));
-    } catch (err) {
-      console.error('Failed to save orders to localStorage:', err);
-    }
-  }, [orders]);
+    validateFirestoreConnection()
+      .then((connected) => setIsCloudConnected(connected))
+      .catch(() => setIsCloudConnected(false));
+  }, []);
 
-  // Persist Store Settings
+  // 2. Real-Time Cloud Synchronization for Products
   useEffect(() => {
-    try {
-      localStorage.setItem(STORAGE_KEYS.SETTINGS, JSON.stringify(storeSettings));
-    } catch (err) {
-      console.error('Failed to save settings to localStorage:', err);
-    }
-  }, [storeSettings]);
+    const productsCol = collection(db, 'products');
+
+    const unsubscribe = onSnapshot(
+      productsCol,
+      async (snapshot) => {
+        // If Firestore is empty (first ever deployment), seed initial products to cloud
+        if (snapshot.empty) {
+          console.log('Seeding initial catalog to Firestore cloud database...');
+          try {
+            for (const item of PRODUCTS_CATALOG) {
+              await setDoc(doc(db, 'products', item.id), sanitizeForFirestore(item));
+            }
+          } catch (seedErr) {
+            console.error('Error seeding initial catalog to Firestore:', seedErr);
+          }
+          return;
+        }
+
+        // Map cloud documents
+        const cloudProducts: ProductItem[] = [];
+        snapshot.forEach((docSnap) => {
+          cloudProducts.push({ ...(docSnap.data() as ProductItem), id: docSnap.id });
+        });
+
+        // Update local state and cache
+        setProducts(cloudProducts);
+        try {
+          localStorage.setItem(STORAGE_KEYS.PRODUCTS, JSON.stringify(cloudProducts));
+        } catch {
+          // ignore
+        }
+      },
+      (error) => {
+        console.warn('Firestore products onSnapshot warning:', error.message);
+      }
+    );
+
+    return () => unsubscribe();
+  }, []);
+
+  // 3. Real-Time Cloud Synchronization for Orders / Inquiries
+  useEffect(() => {
+    const ordersCol = collection(db, 'orders');
+
+    const unsubscribe = onSnapshot(
+      ordersCol,
+      async (snapshot) => {
+        if (snapshot.empty) {
+          // Seed sample orders to cloud if empty
+          try {
+            for (const ord of INITIAL_ORDERS) {
+              await setDoc(doc(db, 'orders', ord.id), sanitizeForFirestore(ord));
+            }
+          } catch (err) {
+            console.error('Error seeding initial orders to Firestore:', err);
+          }
+          return;
+        }
+
+        const cloudOrders: OrderLead[] = [];
+        snapshot.forEach((docSnap) => {
+          cloudOrders.push({ ...(docSnap.data() as OrderLead), id: docSnap.id });
+        });
+
+        // Sort by date descending
+        cloudOrders.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+
+        setOrders(cloudOrders);
+        try {
+          localStorage.setItem(STORAGE_KEYS.ORDERS, JSON.stringify(cloudOrders));
+        } catch {
+          // ignore
+        }
+      },
+      (error) => {
+        console.warn('Firestore orders onSnapshot warning:', error.message);
+      }
+    );
+
+    return () => unsubscribe();
+  }, []);
+
+  // 4. Real-Time Cloud Synchronization for Store Settings & Marquee
+  useEffect(() => {
+    const settingsDoc = doc(db, 'settings', 'store_config');
+
+    const unsubscribe = onSnapshot(
+      settingsDoc,
+      async (snapshot) => {
+        if (!snapshot.exists()) {
+          // Initialize in cloud
+          try {
+            await setDoc(settingsDoc, sanitizeForFirestore(DEFAULT_STORE_SETTINGS));
+          } catch (err) {
+            console.error('Error initializing store settings in Firestore:', err);
+          }
+          return;
+        }
+
+        const cloudSettings = snapshot.data() as StoreSettings;
+        setStoreSettings({ ...DEFAULT_STORE_SETTINGS, ...cloudSettings });
+        try {
+          localStorage.setItem(STORAGE_KEYS.SETTINGS, JSON.stringify(cloudSettings));
+        } catch {
+          // ignore
+        }
+      },
+      (error) => {
+        console.warn('Firestore settings onSnapshot warning:', error.message);
+      }
+    );
+
+    return () => unsubscribe();
+  }, []);
 
   // Admin login handler
   const adminLogin = (passcode: string): boolean => {
@@ -223,8 +338,8 @@ export const CatalogProvider: React.FC<{ children: React.ReactNode }> = ({ child
     }
   };
 
-  // Add Product
-  const addProduct = (item: Omit<ProductItem, 'id'> & { id?: string }): ProductItem => {
+  // Add Product (Writes directly to Cloud Firestore so all buyers see it instantly)
+  const addProduct = async (item: Omit<ProductItem, 'id'> & { id?: string }): Promise<ProductItem> => {
     const id = item.id || `prod-${Date.now().toString(36)}-${Math.random().toString(36).substring(2, 6)}`;
     const newProduct: ProductItem = {
       ...item,
@@ -234,24 +349,53 @@ export const CatalogProvider: React.FC<{ children: React.ReactNode }> = ({ child
       galleryImages: item.galleryImages && item.galleryImages.length > 0 ? item.galleryImages : [item.image],
       updatedAt: new Date().toISOString(),
     };
-    setProducts(prev => [newProduct, ...prev]);
+
+    // Update local state immediately for instant response
+    setProducts((prev) => [newProduct, ...prev.filter(p => p.id !== id)]);
+
+    // Write to Firestore Cloud Database
+    try {
+      await setDoc(doc(db, 'products', id), sanitizeForFirestore(newProduct));
+    } catch (err) {
+      console.error('Error saving product to Firestore:', err);
+    }
+
     return newProduct;
   };
 
   // Update Product
-  const updateProduct = (id: string, updates: Partial<ProductItem>) => {
-    setProducts(prev =>
-      prev.map(p => (p.id === id ? { ...p, ...updates, updatedAt: new Date().toISOString() } : p))
-    );
+  const updateProduct = async (id: string, updates: Partial<ProductItem>): Promise<void> => {
+    const current = products.find(p => p.id === id);
+    if (!current) return;
+
+    const updated: ProductItem = {
+      ...current,
+      ...updates,
+      updatedAt: new Date().toISOString(),
+    };
+
+    setProducts((prev) => prev.map(p => (p.id === id ? updated : p)));
+
+    try {
+      await setDoc(doc(db, 'products', id), sanitizeForFirestore(updated), { merge: true });
+    } catch (err) {
+      console.error('Error updating product in Firestore:', err);
+    }
   };
 
   // Delete Product
-  const deleteProduct = (id: string) => {
-    setProducts(prev => prev.filter(p => p.id !== id));
+  const deleteProduct = async (id: string): Promise<void> => {
+    setProducts((prev) => prev.filter(p => p.id !== id));
+
+    try {
+      await deleteDoc(doc(db, 'products', id));
+    } catch (err) {
+      console.error('Error deleting product from Firestore:', err);
+    }
   };
 
   // Duplicate Product
-  const duplicateProduct = (id: string): ProductItem => {
+  const duplicateProduct = async (id: string): Promise<ProductItem> => {
     const original = products.find(p => p.id === id);
     if (!original) throw new Error('Product not found');
     const newId = `prod-copy-${Date.now().toString(36)}`;
@@ -261,28 +405,53 @@ export const CatalogProvider: React.FC<{ children: React.ReactNode }> = ({ child
       name: `${original.name} (Copy)`,
       updatedAt: new Date().toISOString(),
     };
-    setProducts(prev => [copy, ...prev]);
+
+    setProducts((prev) => [copy, ...prev]);
+
+    try {
+      await setDoc(doc(db, 'products', newId), sanitizeForFirestore(copy));
+    } catch (err) {
+      console.error('Error duplicating product in Firestore:', err);
+    }
+
     return copy;
   };
 
   // Toggle inStock
-  const toggleStock = (id: string) => {
-    setProducts(prev =>
-      prev.map(p => (p.id === id ? { ...p, inStock: !p.inStock, updatedAt: new Date().toISOString() } : p))
-    );
+  const toggleStock = async (id: string): Promise<void> => {
+    const prod = products.find(p => p.id === id);
+    if (!prod) return;
+
+    const newStock = !prod.inStock;
+    setProducts((prev) => prev.map(p => (p.id === id ? { ...p, inStock: newStock } : p)));
+
+    try {
+      await setDoc(doc(db, 'products', id), { inStock: newStock, updatedAt: new Date().toISOString() }, { merge: true });
+    } catch (err) {
+      console.error('Error toggling stock in Firestore:', err);
+    }
   };
 
   // Toggle Hot Offer
-  const toggleHotOffer = (id: string) => {
-    setProducts(prev =>
-      prev.map(p => (p.id === id ? { ...p, isHotOffer: !p.isHotOffer, updatedAt: new Date().toISOString() } : p))
-    );
+  const toggleHotOffer = async (id: string): Promise<void> => {
+    const prod = products.find(p => p.id === id);
+    if (!prod) return;
+
+    const newHot = !prod.isHotOffer;
+    setProducts((prev) => prev.map(p => (p.id === id ? { ...p, isHotOffer: newHot } : p)));
+
+    try {
+      await setDoc(doc(db, 'products', id), { isHotOffer: newHot, updatedAt: new Date().toISOString() }, { merge: true });
+    } catch (err) {
+      console.error('Error toggling hot offer in Firestore:', err);
+    }
   };
 
-  // Orders / Inquiry Leads
-  const addOrderLead = (lead: Partial<OrderLead>): OrderLead => {
+  // Add Customer Inquiry / Order Lead
+  const addOrderLead = async (lead: Partial<OrderLead>): Promise<OrderLead> => {
+    const id = `ord-${Date.now().toString(36)}`;
     const newLead: OrderLead = {
-      id: `ord-${Date.now().toString(36)}`,
+      id,
       customerName: lead.customerName || 'Anonymous Rider',
       customerPhone: lead.customerPhone || 'Not provided',
       customerLocation: lead.customerLocation || 'India',
@@ -297,43 +466,75 @@ export const CatalogProvider: React.FC<{ children: React.ReactNode }> = ({ child
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     };
-    setOrders(prev => [newLead, ...prev]);
+
+    setOrders((prev) => [newLead, ...prev]);
+
+    try {
+      await setDoc(doc(db, 'orders', id), sanitizeForFirestore(newLead));
+    } catch (err) {
+      console.error('Error saving order lead to Firestore:', err);
+    }
+
     return newLead;
   };
 
-  const updateOrderLead = (id: string, updates: Partial<OrderLead>) => {
-    setOrders(prev =>
+  // Update Order Lead
+  const updateOrderLead = async (id: string, updates: Partial<OrderLead>): Promise<void> => {
+    setOrders((prev) =>
       prev.map(o => (o.id === id ? { ...o, ...updates, updatedAt: new Date().toISOString() } : o))
     );
+
+    try {
+      await setDoc(doc(db, 'orders', id), sanitizeForFirestore({ ...updates, updatedAt: new Date().toISOString() }), { merge: true });
+    } catch (err) {
+      console.error('Error updating order lead in Firestore:', err);
+    }
   };
 
-  const deleteOrderLead = (id: string) => {
-    setOrders(prev => prev.filter(o => o.id !== id));
+  // Delete Order Lead
+  const deleteOrderLead = async (id: string): Promise<void> => {
+    setOrders((prev) => prev.filter(o => o.id !== id));
+
+    try {
+      await deleteDoc(doc(db, 'orders', id));
+    } catch (err) {
+      console.error('Error deleting order lead from Firestore:', err);
+    }
   };
 
-  // Settings
-  const updateStoreSettings = (settings: Partial<StoreSettings>) => {
-    setStoreSettings(prev => ({ ...prev, ...settings }));
+  // Update Store Settings
+  const updateStoreSettings = async (settings: Partial<StoreSettings>): Promise<void> => {
+    const merged = { ...storeSettings, ...settings };
+    setStoreSettings(merged);
+
+    try {
+      await setDoc(doc(db, 'settings', 'store_config'), sanitizeForFirestore(merged));
+    } catch (err) {
+      console.error('Error updating store settings in Firestore:', err);
+    }
   };
 
   // Reset to default
-  const resetCatalogToDefault = () => {
+  const resetCatalogToDefault = async (): Promise<void> => {
     setProducts(PRODUCTS_CATALOG);
     setOrders(INITIAL_ORDERS);
     setStoreSettings(DEFAULT_STORE_SETTINGS);
+
     try {
-      localStorage.setItem(STORAGE_KEYS.PRODUCTS, JSON.stringify(PRODUCTS_CATALOG));
-      localStorage.setItem(STORAGE_KEYS.ORDERS, JSON.stringify(INITIAL_ORDERS));
-      localStorage.setItem(STORAGE_KEYS.SETTINGS, JSON.stringify(DEFAULT_STORE_SETTINGS));
-    } catch {
-      // ignore
+      // Overwrite cloud products with factory catalog
+      for (const item of PRODUCTS_CATALOG) {
+        await setDoc(doc(db, 'products', item.id), sanitizeForFirestore(item));
+      }
+      await setDoc(doc(db, 'settings', 'store_config'), sanitizeForFirestore(DEFAULT_STORE_SETTINGS));
+    } catch (err) {
+      console.error('Error resetting catalog in Firestore:', err);
     }
   };
 
   // Export JSON
   const exportData = (): string => {
     const payload = {
-      exportVersion: '1.0',
+      exportVersion: '2.0',
       exportedAt: new Date().toISOString(),
       storeSettings,
       products,
@@ -343,7 +544,7 @@ export const CatalogProvider: React.FC<{ children: React.ReactNode }> = ({ child
   };
 
   // Import JSON
-  const importData = (jsonStr: string): { success: boolean; message: string } => {
+  const importData = async (jsonStr: string): Promise<{ success: boolean; message: string }> => {
     try {
       const parsed = JSON.parse(jsonStr);
       if (!parsed || typeof parsed !== 'object') {
@@ -351,14 +552,26 @@ export const CatalogProvider: React.FC<{ children: React.ReactNode }> = ({ child
       }
       if (Array.isArray(parsed.products)) {
         setProducts(parsed.products);
+        for (const item of parsed.products) {
+          if (item.id) {
+            await setDoc(doc(db, 'products', item.id), sanitizeForFirestore(item));
+          }
+        }
       }
       if (Array.isArray(parsed.orders)) {
         setOrders(parsed.orders);
+        for (const ord of parsed.orders) {
+          if (ord.id) {
+            await setDoc(doc(db, 'orders', ord.id), sanitizeForFirestore(ord));
+          }
+        }
       }
       if (parsed.storeSettings && typeof parsed.storeSettings === 'object') {
-        setStoreSettings(prev => ({ ...prev, ...parsed.storeSettings }));
+        const merged = { ...DEFAULT_STORE_SETTINGS, ...parsed.storeSettings };
+        setStoreSettings(merged);
+        await setDoc(doc(db, 'settings', 'store_config'), sanitizeForFirestore(merged));
       }
-      return { success: true, message: `Successfully imported ${parsed.products?.length ?? 0} products!` };
+      return { success: true, message: `Successfully imported ${parsed.products?.length ?? 0} products to Cloud Database!` };
     } catch (err: any) {
       return { success: false, message: err.message || 'Failed to parse JSON file.' };
     }
@@ -372,6 +585,7 @@ export const CatalogProvider: React.FC<{ children: React.ReactNode }> = ({ child
         orders,
         storeSettings,
         isAdminAuthenticated,
+        isCloudConnected,
         adminLogin,
         adminLogout,
         addProduct,
