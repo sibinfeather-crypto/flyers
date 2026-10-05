@@ -14,7 +14,6 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenInquiry }) => {
 
   const navLinks = [
     { label: 'HOME', to: '/' },
-    { label: 'SPARES', to: '/catalog?category=spares' },
     { label: 'CATALOG', to: '/catalog' },
     { label: 'TRACK TYRES', to: '/track-tyres' },
     { label: 'ABOUT US', to: '/about' },
